@@ -180,6 +180,40 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
   background:var(--ink);color:var(--chalk);padding:13px 20px;border-radius:10px;
   font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(46,42,36,.3);max-width:88%;text-align:center}
 .toast.err{background:#8E2A24}
+
+/* ══════ 大きい画面 ══════════════════════════════
+   問い・ホーム・フォームは読みやすい幅に留め、
+   ボードと運営ページは画面を広く使う。
+   このブロックは必ず最後に置くこと（後勝ちのため）  */
+@media (min-width:900px){
+  .wrap{max-width:720px}
+  .wrap.v-board{max-width:1280px}
+  .wrap.v-admin{max-width:1120px}
+  .board{padding:20px 30px 22px}
+  .tray{height:12px}
+  .main{padding:20px 30px 0}
+  .foot{padding:16px 30px 26px}
+  .qkm{font-size:23px}
+  .qen{font-size:14px}
+  .bTitle{font-size:20px}
+  .wrap textarea{height:200px;font-size:18px}
+  .btn{min-height:60px;font-size:17px}
+  .btn2{min-height:52px}
+  /* PC では下部固定をやめ、本文の後ろに置く */
+  .tabs{position:static;border:1px solid var(--line);border-radius:12px;margin:16px 30px 26px}
+  .wrap .grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .ad{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;padding:20px 30px 30px}
+  .ad > .wide{grid-column:1 / -1}
+  .ad > button{grid-column:1 / -1}
+  .qrow .tx{font-size:14px}
+  .stat{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media (min-width:1200px){
+  .wrap .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .v-board .cardn p{font-size:15px}
+  .v-board .bTitle{font-size:27px}
+  .v-board .qkm{font-size:25px}
+}
 </style>
 </head>
 <body>
@@ -213,12 +247,13 @@ var Q = [
 {id:"A1",day:1,ses:"D1-A",mode:"read",role:null,
  km:"បន្ទាប់ពីសិក្ខាសាលា តើលោកគ្រូ អ្នកគ្រូបានសាកល្បងអនុវត្ត Flipped Learning ដែរឬទេ? ប្រសិនបើបានអនុវត្តរួចហើយ តើចំណុចណាដំណើរការបានល្អ ហើយចំណុចណាជាបញ្ហាប្រឈម?",
  en:"After the workshop, did you try Flipped Learning? If you did, what worked well and what were your challenges?"},
+/* ↑ シートは \"what was your challenges\"。were に直してあります */
 {id:"A2",day:1,ses:"D1-A",mode:"read",role:"learner",
  km:"ក្នុងនាមជាសិស្សម្នាក់ សូមសង្ខេបចំណុចសំខាន់ៗនៃវីដេអូនេះ។",
  en:"As a learner, summarise the main points of the video."},
 {id:"A3",day:1,ses:"D1-A",mode:"read",role:"learner",
  km:"ក្នុងនាមជាសិស្សម្នាក់ ប្រសិនបើវាជាកិច្ចការមុនម៉ោងសិក្សារបស់អ្នក តើមានចំណុចណាដែលអ្នកយល់ថាពិបាកដែរឬទេ? បើមាន ត្រង់ណា ហើយហេតុអ្វី?",
- en:"As a learner, if this were your own Before Class task, was there anything you found difficult? If so, where, and why?"},
+ en:"As a learner, if this were your own Before Class learning, was there anything you found difficult? If so, where, and why?"},
 {id:"A4",day:1,ses:"D1-A",mode:"read",role:"observer",
  km:"ក្នុងនាមជាអ្នកអប់រំ សូមមើលការវាយតម្លៃនេះ។ ពេលសិស្សឆ្លើយខុស តើអ្នកអាចដឹងទេថាតើសិស្សភ័ន្តច្រឡំពីអ្វី? តើសំណួរមួយណាដែលមិនអាចប្រាប់អ្នកពីរឿងនោះ?",
  en:"As an educator, look at this assessment. When a learner answers wrongly, can you tell what they have misunderstood? Which questions do not tell you that?"},
@@ -231,33 +266,33 @@ var Q = [
 
 /* B — Day 1 午後① 学習者として */
 {id:"B1",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
- km:"តើបរិមាណ និងកម្រិតលំបាកនៃការសិក្សាមុនម៉ោងសិក្សាសមរម្យដែរឬទេ?",
- en:"Was the amount and the difficulty of the pre-class learning appropriate?"},
+ km:"«ក្នុងនាមជាសិស្ស» តើបរិមាណ និងកម្រិតលំបាកនៃការសិក្សាមុនម៉ោងសិក្សាសមរម្យដែរឬទេ?",
+ en:"<As a learner> Was the amount and the difficulty of the pre-class learning appropriate?"},
 {id:"B2",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
- km:"តើអ្វីដែលអ្នកបានសិក្សាមុនពេលចូលថ្នាក់រៀន បានជួយអ្នកក្នុងសកម្មភាពក្នុងថ្នាក់ដែរឬទេ?",
- en:"Did what you learned before the class help you in the classroom activities?"},
+ km:"«ក្នុងនាមជាសិស្ស» តើអ្វីដែលអ្នកបានសិក្សាមុនពេលចូលថ្នាក់រៀន បានជួយអ្នកក្នុងសកម្មភាពក្នុងថ្នាក់ដែរឬទេ?",
+ en:"<As a learner> Did what you learned before the class help you in the classroom activities?"},
 {id:"B3",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
- km:"តើអ្វីដែលពិបាកក្នុងសកម្មភាពក្នុងថ្នាក់? តើជំនួយរបស់គ្រូគ្រប់គ្រាន់ដែរឬទេ?",
- en:"What was difficult in the classroom activities? Was the teacher's support enough?"},
+ km:"«ក្នុងនាមជាសិស្ស» តើអ្វីដែលពិបាកក្នុងសកម្មភាពក្នុងថ្នាក់? តើជំនួយរបស់គ្រូគ្រប់គ្រាន់ដែរឬទេ?",
+ en:"<As a learner> What was difficult in the classroom activities? Was the teacher's support enough?"},
 {id:"B4",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
- km:"បើប្រៀបធៀបនឹងមេរៀនធម្មតា តើមានងាយស្រួលចូលរួមជាងដែរឬទេ? តើការរៀនសូត្រកាន់តែស៊ីជម្រៅដែរឬទេ?",
- en:"Compared with a usual lesson, was it easier to take part? Did your learning go deeper?"},
+ km:"«ក្នុងនាមជាសិស្ស» បើប្រៀបធៀបនឹងមេរៀនធម្មតា តើមានងាយស្រួលចូលរួមជាងដែរឬទេ? តើការរៀនសូត្រកាន់តែស៊ីជម្រៅដែរឬទេ?",
+ en:"<As a learner> Compared with a usual lesson, was it easier to take part? Did your learning go deeper?"},
 
 /* B — Day 1 午後① 観察者として */
 {id:"B5",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
- km:"តើការសិក្សាផ្ទាល់បានប្រើប្រាស់ និងពង្រីកការសិក្សាមុនម៉ោងសិក្សា ជាជាងធ្វើម្តងទៀតដែរឬទេ? តើសិស្សបានរៀនមុនមកដែរឬទេ?",
- en:"Did the face-to-face lesson build on and extend the pre-class learning, rather than repeat it? Had the students done the pre-class work?"},
+ km:"«ក្នុងនាមជាអ្នកសង្កេត» តើការសិក្សាផ្ទាល់បានប្រើប្រាស់ និងពង្រីកការសិក្សាមុនម៉ោងសិក្សា ជាជាងធ្វើម្តងទៀតដែរឬទេ? តើសិស្សបានរៀនមុនមកដែរឬទេ?",
+ en:"<As an observer> Did the face-to-face lesson build on and extend the pre-class learning, rather than repeat it? Had the students done the pre-class work?"},
 {id:"B6",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
- km:"នៅក្នុងសកម្មភាពជំហានទី ៤ តើសិស្សបានដើរតួនាទីជាតួអង្គសំខាន់ដែរឬទេ? តើវាស្របគ្នាជាមួយខ្លឹមសារមុនម៉ោងសិក្សាដែរឬទេ?",
- en:"In the STEP 4 activity, were the students the main actors? Was it consistent with the pre-class content?"},
+ km:"«ក្នុងនាមជាអ្នកសង្កេត» នៅក្នុងសកម្មភាពជំហានទី ៤ តើសិស្សបានដើរតួនាទីជាតួអង្គសំខាន់ដែរឬទេ? តើវាស្របគ្នាជាមួយខ្លឹមសារមុនម៉ោងសិក្សាដែរឬទេ?",
+ en:"<As an observer> In the STEP 4 activity, were the students the main actors? Was it consistent with the pre-class content?"},
 {id:"B7",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
- km:"នៅក្នុងបរិបទកម្ពុជា តើអ្វីធ្វើឲ្យ Flipped Learning មានការលំបាក ហើយតើអាចធ្វើអ្វីខ្លះដើម្បីដោះស្រាយ?",
- en:"In the Cambodian context, what makes Flipped Learning difficult, and what can be done about it?"},
+ km:"«ក្នុងនាមជាអ្នកសង្កេត» នៅក្នុងបរិបទកម្ពុជា តើអ្វីធ្វើឲ្យ Flipped Learning មានការលំបាក ហើយតើអាចធ្វើអ្វីខ្លះដើម្បីដោះស្រាយ?",
+ en:"<As an observer> In the Cambodian context, what makes Flipped Learning difficult, and what can be done about it?"},
 
 /* C — Day 1 午後② */
 {id:"C1",day:1,ses:"D1-C",mode:"read",role:null,
  km:"សម្រាប់ប្រធានបទនៃមេរៀនពេលព្រឹកនេះ តើខ្សែបន្ទាត់បែងចែករវាង «អ្វីដែលអាចរៀនមុនម៉ោងសិក្សា» និង «អ្វីដែលធ្វើបាននៅក្នុងថ្នាក់រៀន (ផ្ទាល់)» នៅត្រង់ណា?",
- en:"For the topic of this morning's lesson, where is the line between what can be learned Before Class and what can only be done In Class?"},
+ en:"For the topic of this morning's lesson, where is the line between what can be learned Before Class and what can only be done In Class (face to face)?"},
 {id:"C2",day:1,ses:"D1-C",mode:"read",role:null,
  km:"សម្រាប់ប្រធានបទនៃមេរៀនពេលព្រឹកនេះ តើគំនិតភ័ន្តច្រឡំបីយ៉ាងដែលសិស្សតែងតែមានច្រើនជាងគេ គឺអ្វី?",
  en:"For the topic of this morning's lesson, what are the three misconceptions that learners most often have?"},
@@ -464,7 +499,8 @@ function hashOf(ans){
 /* ═══════════════ 画面 ═══════════════ */
 function render(){
   var a = el("app");
-  if(!me.subject || !me.group){ a.innerHTML = vStart(); bindStart(); return; }
+  if(!me.subject || !me.group){ a.className = "wrap v-start"; a.innerHTML = vStart(); bindStart(); return; }
+  a.className = "wrap v-" + view;
   var body = "";
   if(view==="home")  body = vHome();
   if(view==="q")     body = vQ();
@@ -856,7 +892,7 @@ function vAdmin(){
       '<div class="lang"><button class="'+(ST.lang==="km"?"on":"")+'" data-sl="km">ខ្មែរ</button>'+
       '<button class="'+(ST.lang==="en"?"on":"")+'" data-sl="en">English</button></div></div>'+
 
-    '<div class="box"><div class="rowb"><h3>STAGED RELEASE</h3>'+
+    '<div class="box wide"><div class="rowb"><h3>STAGED RELEASE</h3>'+
       '<label style="display:flex;align-items:center;gap:8px;min-height:44px">'+
       '<input type="checkbox" id="lock" '+(ST.lock?"checked":"")+' style="width:19px;height:19px;accent-color:#22332B">'+
       '<span style="font-size:13px">On</span></label></div>'+
