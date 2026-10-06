@@ -46,6 +46,38 @@ function setup() {
   return 'ok';
 }
 
+/**
+ * 本番前のリセット。
+ * 回答をすべて消し、重複判定の記録と運営の状態も初期化する。
+ * エディタから手動で実行する。デプロイのし直しは不要。
+ * 消したものは戻らないので、デモのログを残したい場合は先にシートを複製すること。
+ */
+function resetData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  var n = ss.getSheetByName(NOTES);
+  if (n && n.getLastRow() > 1) {
+    n.deleteRows(2, n.getLastRow() - 1);
+  }
+
+  var c = ss.getSheetByName(CONFIG);
+  if (c && c.getLastRow() > 1) {
+    c.deleteRows(2, c.getLastRow() - 1);
+  }
+
+  // 初日の状態に戻す（段階公開オン・公開ゼロ・クメール語）
+  setConfig_('day', '1');
+  setConfig_('lang', 'km');
+  setConfig_('lock', '1');
+  setConfig_('open', '');
+  setConfig_('timerRun', '0');
+  setConfig_('timerEnd', '0');
+  setConfig_('summary', '');
+  bust_();
+
+  return 'reset done';
+}
+
 /* ───────────────── 受信 ───────────────── */
 
 function doPost(e) {
@@ -58,9 +90,9 @@ function doPost(e) {
   try {
     var d = JSON.parse(e.postData.contents || '{}');
 
-    if (d.type === 'state')   { setState_(d.state || {}); return json_({ ok: true }); }
-    if (d.type === 'summary') { setConfig_('summary', String(d.text || '')); return json_({ ok: true }); }
-    if (d.type === 'submit')  { return json_(submit_(d)); }
+    if (d.type === 'state')   { setState_(d.state || {}); bust_(); return json_({ ok: true }); }
+    if (d.type === 'summary') { setConfig_('summary', String(d.text || '')); bust_(); return json_({ ok: true }); }
+    if (d.type === 'submit')  { var r = submit_(d); bust_(); return json_(r); }
 
     return json_({ ok: false, error: 'unknown type' });
   } catch (err) {
@@ -141,14 +173,45 @@ function submit_(d) {
 
 /* ───────────────── 配信 ───────────────── */
 
+/**
+ * 60名が6秒おきに取りに来るので、毎回シートを読むと終盤で詰まる。
+ * 数秒だけキャッシュし、書き込みがあったら即座に捨てる。
+ * 書き込み時に捨てるので、運営の操作が遅れて見えることはない。
+ */
 function doGet(e) {
   var p = (e && e.parameter) || {};
   try {
-    if (p.action === 'notes') return json_({ ok: true, notes: notes_(p.day || '') });
-    return json_({ ok: true, state: getState_() });
+    var cache = CacheService.getScriptCache();
+
+    if (p.action === 'notes') {
+      var nk = 'notes:' + (p.day || '');
+      var nc = cache.get(nk);
+      if (nc) return raw_(nc);
+      var no = JSON.stringify({ ok: true, notes: notes_(p.day || '') });
+      cache.put(nk, no, 8);
+      return raw_(no);
+    }
+
+    var sc = cache.get('state');
+    if (sc) return raw_(sc);
+    var so = JSON.stringify({ ok: true, state: getState_() });
+    cache.put('state', so, 5);
+    return raw_(so);
+
   } catch (err) {
     return json_({ ok: false, error: String(err) });
   }
+}
+
+/** 書き込みのあとにキャッシュを捨てる */
+function bust_() {
+  try {
+    CacheService.getScriptCache().removeAll(['state', 'notes:', 'notes:1', 'notes:2']);
+  } catch (err) {}
+}
+
+function raw_(s) {
+  return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.JSON);
 }
 
 /** ボード用。最新版のみ、直近400件 */

@@ -1170,8 +1170,20 @@ function toast(msg, bad){
   render();
   pullState();
   pullNotes();
-  setInterval(pullState, 6000);
-  setInterval(function(){ if(view==="board"||view==="admin") pullNotes(); }, 8000);
+  /* 60台が同時に叩くと山ができるので、間隔を少しずつずらす。
+     画面を見ていないときは取りに行かない。 */
+  function loop(fn, base, span){
+    setTimeout(function run(){
+      if(!document.hidden) fn();
+      setTimeout(run, base + Math.floor(Math.random()*span));
+    }, Math.floor(Math.random()*span));
+  }
+  loop(pullState, 6000, 2000);
+  loop(function(){ if(view==="board" || view==="admin") pullNotes(); }, 8000, 2500);
+  /* 画面に戻ってきたらすぐ最新にする */
+  document.addEventListener("visibilitychange", function(){
+    if(!document.hidden){ pullState(); if(view==="board"||view==="admin") pullNotes(); }
+  });
   window.addEventListener("hashchange", function(){
     if(location.hash === "#admin"){ view="admin"; render(); }
   });
