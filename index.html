@@ -208,6 +208,20 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
   .qrow .tx{font-size:14px}
   .stat{grid-template-columns:repeat(4,minmax(0,1fr))}
 }
+/* PC の問い画面は左に黒板、右に入力。
+   スクロールせずに問いと送信ボタンが同時に見える */
+@media (min-width:900px){
+  .wrap.v-q{max-width:1160px;display:grid;
+    grid-template-columns:minmax(0,520px) minmax(0,1fr);
+    grid-template-rows:auto auto;align-content:start}
+  .wrap.v-q .board{grid-column:1;grid-row:1 / span 2;
+    border-right:10px solid var(--wood);box-shadow:inset -3px 0 4px rgba(0,0,0,.22)}
+  .wrap.v-q .tray{display:none}
+  .wrap.v-q .main{grid-column:2;grid-row:1}
+  .wrap.v-q .foot{grid-column:2;grid-row:2}
+  .wrap.v-q .tabs{grid-column:1 / -1}
+  .wrap.v-q textarea{height:230px}
+}
 @media (min-width:1200px){
   .wrap .grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .v-board .cardn p{font-size:15px}
@@ -899,8 +913,13 @@ function vAdmin(){
       '<select id="sessel" class="inp" style="width:100%">'+opt+'</select>'+
       '<div style="display:flex;flex-direction:column;gap:7px">'+rows+'</div>'+
       '<div style="display:flex;gap:9px;flex-wrap:wrap">'+
-      '<button class="btn2 k" id="relall" style="padding:0 14px">Release all</button>'+
-      '<button class="btn2" id="hideall" style="padding:0 14px">Hide all</button></div></div>'+
+      '<button class="btn2 k" id="relall" style="padding:0 14px">Release session</button>'+
+      '<button class="btn2 k" id="relday" style="padding:0 14px">Release all of Day '+day()+'</button>'+
+      '<button class="btn2" id="relevery" style="padding:0 14px">Release everything</button>'+
+      '<button class="btn2" id="hideall" style="padding:0 14px">Hide session</button>'+
+      '<button class="btn2" id="hideday" style="padding:0 14px">Hide Day '+day()+'</button></div>'+
+      '<span style="font-size:11px;color:var(--muted);line-height:1.7">'+
+      'Release everything = both days, for after the workshop.</span></div>'+
 
     '<div class="box"><h3>SUMMARY ON BOARD</h3>'+
       '<textarea id="sum" class="km ta2" placeholder="3 points from the discussion…">'+esc(ST.summary||"")+'</textarea>'+
@@ -1056,6 +1075,19 @@ function bindAdmin(){
   if(ha) ha.onclick = function(){
     var list = daySes(), ses = list[sesIx];
     var ids = qsOf(ses.id).map(function(q){ return q.id; });
+    push({open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
+  };
+  var rd = el("relday");
+  if(rd) rd.onclick = function(){
+    var s = openSet();
+    Q.forEach(function(q){ if(String(q.day)===day() && s.indexOf(q.id)<0) s.push(q.id); });
+    push({open: s.join(",")});
+  };
+  var re = el("relevery");
+  if(re) re.onclick = function(){ push({open: Q.map(function(q){ return q.id; }).join(",")}); };
+  var hd = el("hideday");
+  if(hd) hd.onclick = function(){
+    var ids = Q.filter(function(q){ return String(q.day)===day(); }).map(function(q){ return q.id; });
     push({open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
   };
   var ts = el("tstart");
