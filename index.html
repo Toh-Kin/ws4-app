@@ -921,6 +921,13 @@ function vAdmin(){
       '<label style="display:flex;align-items:center;gap:8px;min-height:44px">'+
       '<input type="checkbox" id="lock" '+(ST.lock?"checked":"")+' style="width:19px;height:19px;accent-color:#22332B">'+
       '<span style="font-size:13px">On</span></label></div>'+
+      (ST.lock
+        ? '<div style="font-size:12px;font-weight:600;color:#2A4A30;background:#EEF3EC;'+
+          'border:1px solid #C9D9C2;border-radius:8px;padding:9px 12px;line-height:1.6">'+
+          'ON — participants see only released questions. '+openSet().length+' of '+Q.length+' released.</div>'
+        : '<div style="font-size:13px;font-weight:700;color:#8E2A24;background:#FBECEA;'+
+          'border:1px solid #EDC9C5;border-radius:8px;padding:10px 12px;line-height:1.6">'+
+          'OFF — participants can see EVERY question. Hiding has no effect until you tick the box above.</div>')+
       '<select id="sessel" class="inp" style="width:100%">'+opt+'</select>'+
       '<div style="display:flex;flex-direction:column;gap:7px">'+rows+'</div>'+
       '<div style="display:flex;gap:9px;flex-wrap:wrap">'+
@@ -1094,7 +1101,7 @@ function bindAdmin(){
   if(ha) ha.onclick = function(){
     var list = daySes(), ses = list[sesIx];
     var ids = qsOf(ses.id).map(function(q){ return q.id; });
-    push({open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
+    push({lock:1, open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
   };
   var rd = el("relday");
   if(rd) rd.onclick = function(){
@@ -1107,7 +1114,7 @@ function bindAdmin(){
   var hd = el("hideday");
   if(hd) hd.onclick = function(){
     var ids = Q.filter(function(q){ return String(q.day)===day(); }).map(function(q){ return q.id; });
-    push({open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
+    push({lock:1, open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
   };
   var ts = el("tstart");
   if(ts) ts.onclick = function(){
