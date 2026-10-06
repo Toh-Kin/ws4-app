@@ -264,6 +264,9 @@ function gName(g){ return g ? ("No." + g) : ""; }
    role: learner / observer / null                                    */
 var Q = [
 /* A — Day 1 午前① */
+{id:"A0",day:1,ses:"D1-A",mode:"answer",role:null,
+ km:"តើអ្នកចង់ទទួលបានអ្វីពីសិក្ខាសាលាពីរថ្ងៃនេះ? សូមសរសេរគោលដៅមួយរបស់អ្នក។",
+ en:"What do you want to get out of these two days? Write one goal for yourself."},
 {id:"A1",day:1,ses:"D1-A",mode:"read",role:null,
  km:"បន្ទាប់ពីសិក្ខាសាលា តើលោកគ្រូ អ្នកគ្រូបានសាកល្បងអនុវត្ត Flipped Learning ដែរឬទេ? ប្រសិនបើបានអនុវត្តរួចហើយ តើចំណុចណាដំណើរការបានល្អ ហើយចំណុចណាជាបញ្ហាប្រឈម?",
  en:"After the workshop, did you try Flipped Learning? If you did, what worked well and what were your challenges?"},
@@ -354,7 +357,7 @@ var Q = [
 
 /* ═══════════════ セッション ═══════════════ */
 var SES = [
- {id:"D1-A",   day:1, km:"ព្រឹក ① · ប្តូរសម្ភារៈ",      en:"AM1 · Swap and try",        batch:null,      scope:null},
+ {id:"D1-A",   day:1, km:"ព្រឹក ① · សំណួរបើក",         en:"AM1 · Opening Question",    batch:"D1-A0", scope:"individual"},
  {id:"D1-B-L", day:1, km:"រសៀល ① · ក្នុងនាមជាសិស្ស",  en:"PM1 · As a learner",        batch:"D1-B-L", scope:"group"},
  {id:"D1-B-O", day:1, km:"រសៀល ① · ក្នុងនាមជាអ្នកសង្កេត", en:"PM1 · As an observer",  batch:"D1-B-O", scope:"group"},
  {id:"D1-C",   day:1, km:"រសៀល ② · មុនម៉ោងសិក្សា",    en:"PM2 · Before Class",        batch:null,      scope:null},
@@ -656,7 +659,8 @@ function vQ(){
     foot = (sent ? noteSent(ses) : "") +
       '<div class="rowb"><span class="hint km" id="cnt">'+done+' / '+aq.length+' '+t("filled")+'</span></div>'+
       '<button class="btn km" id="send"'+(done===aq.length?"":" disabled")+'>'+
-        (sent?t("resend"):t("send"))+' '+ids[0]+'–'+ids[ids.length-1]+'</button>';
+        (sent?t("resend"):t("send"))+' '+
+        (ids.length>1 ? (ids[0]+'–'+ids[ids.length-1]) : ids[0])+'</button>';
   }
   var ai = av.indexOf(sesIx);
   return head(ses, q, qIx, qs.length) + tray() +
