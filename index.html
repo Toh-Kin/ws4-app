@@ -498,7 +498,10 @@ function pullState(){
 }
 function pullNotes(){
   get("action=notes&day=" + day(), function(j){
-    if(j && j.ok){ notes = j.notes || []; if(view==="board") render(); }
+    if(j && j.ok){
+      notes = j.notes || [];
+      if((view==="board" || view==="admin") && !typing()) render();
+    }
   });
 }
 
@@ -720,10 +723,22 @@ function tickTimer(){
 
 /* ── ボード ── */
 function vBoard(){
-  var list = daySes(), ses = list[sesIx] || list[0];
-  var qs = qsOf(ses.id).filter(function(q){ return q.mode==="answer"; });
-  if(!qs.length) qs = qsOf(ses.id);
-  if(!boardQ || !qs.some(function(q){return q.id===boardQ;})) boardQ = qs.length?qs[0].id:"";
+  /* ボードは端末の現在地に依存させない。
+     その日の【記入】の問いのうち、記録があるか公開済みのものを並べる。 */
+  var dq = Q.filter(function(q){ return String(q.day)===day() && q.mode==="answer"; });
+  var has = {};
+  notes.forEach(function(n){ has[n.qid] = 1; });
+  var qs = dq.filter(function(q){ return has[q.id] || visible(q); });
+  if(!qs.length) qs = dq;
+
+  if(!boardQ || !qs.some(function(q){ return q.id===boardQ; })){
+    /* いちばん新しい記録がある問いに合わせる */
+    var pick = "";
+    for(var i=notes.length-1;i>=0;i--){
+      if(qs.some(function(q){ return q.id===notes[i].qid; })){ pick = notes[i].qid; break; }
+    }
+    boardQ = pick || (qs.length ? qs[0].id : "");
+  }
 
   var tabs = qs.map(function(q){
     return '<button class="chip '+(boardQ===q.id?"on":"")+'" data-bq="'+q.id+'">'+q.id+'</button>';
@@ -1156,7 +1171,7 @@ function toast(msg, bad){
   pullState();
   pullNotes();
   setInterval(pullState, 6000);
-  setInterval(function(){ if(view==="board"||view==="admin") pullNotes(); }, 12000);
+  setInterval(function(){ if(view==="board"||view==="admin") pullNotes(); }, 8000);
   window.addEventListener("hashchange", function(){
     if(location.hash === "#admin"){ view="admin"; render(); }
   });
