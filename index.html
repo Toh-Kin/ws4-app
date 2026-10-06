@@ -180,6 +180,12 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
   background:var(--ink);color:var(--chalk);padding:13px 20px;border-radius:10px;
   font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(46,42,36,.3);max-width:88%;text-align:center}
 .toast.err{background:#8E2A24}
+.adbar{background:#8E2A24;color:#FBF7F0;padding:9px 16px;display:flex;align-items:center;
+  gap:10px;font-size:12px;font-weight:600;flex-wrap:wrap;
+  padding-top:max(9px,env(safe-area-inset-top))}
+.adbar button{margin-left:auto;min-height:36px;padding:0 12px;border:1.5px solid rgba(251,247,240,.7);
+  border-radius:7px;background:none;color:#FBF7F0;font-size:12px;font-weight:600}
+.adbar button + button{margin-left:0}
 
 /* ══════ 大きい画面 ══════════════════════════════
    問い・ホーム・フォームは読みやすい幅に留め、
@@ -521,7 +527,12 @@ function render(){
   if(view==="board") body = vBoard();
   if(view==="form")  body = vForm();
   if(view==="admin") body = vAdmin();
-  a.innerHTML = body + (view==="admin" ? "" : vTabs());
+  var flag = (isAdmin && view!=="admin")
+    ? '<div class="adbar">FACILITATOR — you see every question, including hidden ones'+
+      '<button id="toadmin">Facilitator page</button>'+
+      '<button id="logout2">Exit</button></div>'
+    : "";
+  a.innerHTML = flag + body + (view==="admin" ? "" : vTabs());
   bind();
   tickTimer();
 }
@@ -929,7 +940,9 @@ function vAdmin(){
       (CFG.sheet?'<a href="'+esc(CFG.sheet)+'" target="_blank" rel="noopener" style="font-size:13px">Open sheet</a>':"")+
       '</div><div class="stat">'+st+'</div></div>'+
 
-    '<button class="btn2" id="exit" style="width:100%">Back to participant view</button>'+
+    '<button class="btn2" id="exit" style="width:100%">Back to participant view (stay facilitator)</button>'+
+    '<button class="btn2" id="logout" style="width:100%;border-color:#C4362F;color:#8E2A24">'+
+      'Exit facilitator mode — see exactly what participants see</button>'+
     '</div>';
 }
 
@@ -1043,6 +1056,12 @@ function bindAdmin(){
   };
   var ex = el("exit");
   if(ex) ex.onclick = function(){ view="q"; render(); };
+
+  function leaveAdmin(){ isAdmin = false; ls("ws4.admin",""); view="q"; render(); }
+  var lo  = el("logout");  if(lo)  lo.onclick  = leaveAdmin;
+  var lo2 = el("logout2"); if(lo2) lo2.onclick = leaveAdmin;
+  var ta2 = el("toadmin"); if(ta2) ta2.onclick = function(){ view="admin"; render(); };
+
   if(!isAdmin) return;
 
   var a = el("app");
