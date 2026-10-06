@@ -76,7 +76,7 @@ button{cursor:pointer}
   display:flex;flex-direction:column;gap:10px}
 .rowb{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .lab{font-size:14px;font-weight:700;color:var(--body)}
-.sub{font-size:11px;font-weight:700;border-radius:5px;padding:4px 9px}
+.sub{font-size:11px;font-weight:700;border-radius:5px;padding:4px 9px;max-width:55%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hint{font-size:11px;color:#A39883}
 .link{min-height:44px;padding:0 2px;border:0;background:none;font-size:13px;font-weight:500;
   color:var(--ink);text-decoration:underline}
@@ -256,8 +256,8 @@ var SUBJ = [
   {id:"soc",  km:"វិទ្យាសាស្ត្រសង្គម",      en:"Social Science",    c:"--soc",  t:"--soc-t",  b:"--soc-b"},
   {id:"edu",  km:"អប់រំវិទ្យា",             en:"Education Studies", c:"--edu",  t:"--edu-t",  b:"--edu-b"}
 ];
-var GROUPS = ["1","2","3","4","5","6","7","8","9","10"];
-function gName(g){ return g ? ("No." + g) : ""; }
+/* group 列には「記入者の名前」が入る。番号は使わない。 */
+function gName(g){ return g || ""; }
 
 /* ═══════════════ 問い ═══════════════
    mode: read = 読むだけ / answer = 入力して送る
@@ -389,7 +389,9 @@ var T = {
     dup:"ខ្លឹមសារមិនបានផ្លាស់ប្តូរទេ", fail:"បញ្ជូនមិនបាន សូមព្យាយាមម្តងទៀត",
     empty:"សូមសរសេរចម្លើយជាមុនសិន", learner:"សិស្ស", observer:"អ្នកសង្កេត",
     needAll:"សូមឆ្លើយគ្រប់សំណួរជាមុនសិន៖", filled:"បានឆ្លើយ",
-    home:"ទំព័រដើម", yours:"មុខវិជ្ជា និងក្រុមរបស់អ្នក", change:"ប្តូរ",
+    home:"ទំព័រដើម", yours:"មុខវិជ្ជា និងឈ្មោះរបស់អ្នក", change:"ប្តូរ",
+    yourName:"ឈ្មោះរបស់អ្នក", typeName:"សរសេរឈ្មោះរបស់អ្នក",
+    pairNote:"ពេលធ្វើការជាគូ ម្នាក់ក្នុងចំណោមអ្នកបញ្ជូនគ្រប់គ្រាន់",
     days:"ប្រធានបទប្រចាំថ្ងៃ", d1:"ថ្ងៃទី ១", d2:"ថ្ងៃទី ២"
   },
   en:{
@@ -404,7 +406,9 @@ var T = {
     dup:"Nothing changed", fail:"Could not send. Please try again.",
     empty:"Please write an answer first", learner:"Learner", observer:"Observer",
     needAll:"Please answer every question first:", filled:"answered",
-    home:"Home", yours:"Your subject and group", change:"Change",
+    home:"Home", yours:"Your subject and name", change:"Change",
+    yourName:"Your name", typeName:"Type your name",
+    pairNote:"For pair work, one of you sending is enough",
     days:"Daily themes", d1:"Day 1", d2:"Day 2"
   }
 };
@@ -413,7 +417,8 @@ function t(k){ return (T[lang]||T.km)[k] || k; }
 /* ═══════════════ 状態 ═══════════════ */
 var lang = ls("ws4.lang") || "km";
 var me   = { subject: ls("ws4.subject")||"", group: ls("ws4.group")||"" };
-if(me.group && GROUPS.indexOf(me.group) < 0){ me.group = ""; ls("ws4.group",""); }
+/* 旧版（グループ番号）の保存値を一度だけ捨てる */
+if(ls("ws4.v") !== "2"){ me.subject=""; me.group=""; ls("ws4.subject",""); ls("ws4.group",""); ls("ws4.v","2"); }
 var client = ls("ws4.client") || (function(){
   var v = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
   ls("ws4.client", v); return v;
@@ -551,9 +556,10 @@ function vStart(){
       (on?('border:2px solid var('+x.c+');background:var('+x.b+')'):('border-left:4px solid var('+x.c+')'))+'">'+
       '<b class="km" style="color:var('+(on?x.t:'--body')+')">'+x.km+'</b><i>'+x.en+'</i></button>';
   }).join("");
-  var g = GROUPS.map(function(x){
-    return '<button class="'+(me.group===x?"on":"")+'" data-g="'+x+'">'+gName(x)+'</button>';
-  }).join("");
+  var g = '<input id="nm" type="text" autocomplete="name" '+
+    'placeholder="'+t("typeName")+'" value="'+esc(me.group)+'" '+
+    'style="width:100%;min-height:52px;border:1px solid var(--line2);border-top:3px solid var(--ink);'+
+    'border-radius:10px;background:var(--card);padding:0 15px;font-size:17px" class="km">';
   return '<div class="board" style="padding-bottom:19px">'+
     '<span class="bMark">WS-4 · S-TEC OUTPUT 4</span>'+
     '<div style="display:flex;flex-direction:column;gap:5px">'+
@@ -568,7 +574,8 @@ function vStart(){
       '<div style="display:flex;flex-direction:column;gap:9px">'+
         '<span class="lab km">'+t("subject")+'</span><div class="pick">'+s+'</div></div>'+
       '<div style="display:flex;flex-direction:column;gap:9px">'+
-        '<span class="lab km">'+t("group")+'</span><div class="gpick">'+g+'</div></div>'+
+        '<span class="lab km">'+t("yourName")+'</span>'+g+
+        '<span class="hint km">'+t("pairNote")+'</span></div>'+
     '</div>'+
     '<div class="foot"><button class="btn km" id="go" '+(me.subject&&me.group?"":"disabled")+'>'+t("start")+'</button>'+
       '<span class="hint km" style="text-align:center">'+t("later")+'</span></div>';
@@ -579,10 +586,11 @@ function bindStart(){
     b.onclick = function(){ me.subject = b.getAttribute("data-s"); ls("ws4.subject",me.subject);
       var g=me.group; me.group=g; a.innerHTML=vStart(); bindStart(); };
   });
-  a.querySelectorAll("[data-g]").forEach(function(b){
-    b.onclick = function(){ me.group = b.getAttribute("data-g"); ls("ws4.group",me.group);
-      a.innerHTML=vStart(); bindStart(); };
-  });
+  var nm = el("nm");
+  if(nm) nm.oninput = function(){
+    me.group = nm.value.trim(); ls("ws4.group", me.group);
+    var go2 = el("go"); if(go2) go2.disabled = !(me.subject && me.group);
+  };
   a.querySelectorAll("[data-l]").forEach(function(b){
     b.onclick = function(){ lang = b.getAttribute("data-l"); ls("ws4.lang",lang);
       document.documentElement.lang = lang; a.innerHTML=vStart(); bindStart(); };
