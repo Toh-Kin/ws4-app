@@ -133,8 +133,9 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
 /* 下部タブ */
 .tabs{position:sticky;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom)}
-.tabs button{flex:1 1 0;min-height:58px;border:0;background:none;display:flex;flex-direction:column;
+.tabs button{flex:1 1 0;min-width:0;min-height:58px;border:0;background:none;display:flex;flex-direction:column;
   align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabs button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;font-size:10px;line-height:1.5}
 .tabs button.on{color:var(--ink)}
 .tabs button.on svg{stroke:var(--ink)}
 
@@ -144,9 +145,9 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
   background:var(--card);display:flex;flex-direction:column;gap:2px;text-align:left}
 .pick button b{font-size:14px;font-weight:700}
 .pick button i{font-style:normal;font-size:11px;color:var(--muted)}
-.gpick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.gpick{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px}
 .gpick button{min-height:48px;border:1px solid var(--line);border-radius:9px;background:var(--card);
-  font-size:17px;font-weight:600}
+  font-size:14px;font-weight:600}
 .gpick button.on{background:var(--ink);border-color:var(--ink);color:var(--chalk);font-weight:700}
 .lang{display:flex;gap:6px}
 .lang button{min-height:44px;padding:0 16px;border:1.5px solid var(--line2);border-radius:8px;
@@ -201,7 +202,8 @@ var SUBJ = [
   {id:"soc",  km:"វិទ្យាសាស្ត្រសង្គម",      en:"Social Science",    c:"--soc",  t:"--soc-t",  b:"--soc-b"},
   {id:"edu",  km:"អប់រំវិទ្យា",             en:"Education Studies", c:"--edu",  t:"--edu-t",  b:"--edu-b"}
 ];
-var GROUPS = "ABCDEFGHIJKL".split("");
+var GROUPS = ["1","2","3","4","5","6","7","8","9","10"];
+function gName(g){ return g ? ("No." + g) : ""; }
 
 /* ═══════════════ 問い ═══════════════
    mode: read = 読むだけ / answer = 入力して送る
@@ -308,6 +310,12 @@ var SES = [
 ];
 
 var THEME = {1:"Refine Consistency", 2:"Deepen learning, Think ahead"};
+var THEME_KM = {
+  1:"កែលម្អភាពស៊ីសង្វាក់គ្នា",
+  2:"ធ្វើឲ្យការរៀនស៊ីជម្រៅ និងគិតទៅមុខ"
+};
+var MAIN_EN = "Redevelop through Practice: From Designing to Improving";
+var MAIN_KM = "បង្កើតឡើងវិញតាមរយៈការអនុវត្ត៖ ពីការរចនា ទៅការកែលម្អ";
 
 /* ═══════════════ 言語 ═══════════════ */
 var T = {
@@ -321,7 +329,10 @@ var T = {
     openForm:"បើកសំណុំបែបបទ", back:"ត្រឡប់វិញ", summary:"សង្ខេប",
     waiting:"សូមរង់ចាំ អ្នកសម្របសម្រួលនឹងបើកសំណួរ", okSent:"បានបញ្ជូនរួចរាល់",
     dup:"ខ្លឹមសារមិនបានផ្លាស់ប្តូរទេ", fail:"បញ្ជូនមិនបាន សូមព្យាយាមម្តងទៀត",
-    empty:"សូមសរសេរចម្លើយជាមុនសិន", learner:"សិស្ស", observer:"អ្នកសង្កេត"
+    empty:"សូមសរសេរចម្លើយជាមុនសិន", learner:"សិស្ស", observer:"អ្នកសង្កេត",
+    needAll:"សូមឆ្លើយគ្រប់សំណួរជាមុនសិន៖", filled:"បានឆ្លើយ",
+    home:"ទំព័រដើម", yours:"មុខវិជ្ជា និងក្រុមរបស់អ្នក", change:"ប្តូរ",
+    days:"ប្រធានបទប្រចាំថ្ងៃ", d1:"ថ្ងៃទី ១", d2:"ថ្ងៃទី ២"
   },
   en:{
     start:"Start", subject:"Choose your subject", group:"Choose your group", lang:"Language",
@@ -333,7 +344,10 @@ var T = {
     openForm:"Open the form", back:"Back", summary:"Summary",
     waiting:"Waiting — the facilitator will release the questions", okSent:"Sent",
     dup:"Nothing changed", fail:"Could not send. Please try again.",
-    empty:"Please write an answer first", learner:"Learner", observer:"Observer"
+    empty:"Please write an answer first", learner:"Learner", observer:"Observer",
+    needAll:"Please answer every question first:", filled:"answered",
+    home:"Home", yours:"Your subject and group", change:"Change",
+    days:"Daily themes", d1:"Day 1", d2:"Day 2"
   }
 };
 function t(k){ return (T[lang]||T.km)[k] || k; }
@@ -341,6 +355,7 @@ function t(k){ return (T[lang]||T.km)[k] || k; }
 /* ═══════════════ 状態 ═══════════════ */
 var lang = ls("ws4.lang") || "km";
 var me   = { subject: ls("ws4.subject")||"", group: ls("ws4.group")||"" };
+if(me.group && GROUPS.indexOf(me.group) < 0){ me.group = ""; ls("ws4.group",""); }
 var client = ls("ws4.client") || (function(){
   var v = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
   ls("ws4.client", v); return v;
@@ -403,16 +418,27 @@ function get(params, cb){
           .then(function(j){ cb && cb(j); })
           .catch(function(){ cb && cb(null); });
 }
+var lastSt = "";
+var pendingRender = false;
+function typing(){
+  var a = document.activeElement;
+  return !!a && (a.tagName === "TEXTAREA" || a.tagName === "INPUT");
+}
 function pullState(){
   get("action=state", function(j){
-    if(j && j.ok && j.state){
-      var before = ST.day;
-      ST = j.state; stKnown = true;
-      if(!ls("ws4.lang")) lang = ST.lang || "km";
-      if(before !== ST.day){ sesIx = 0; qIx = 0; }
-      try{ ls("ws4.state", JSON.stringify(ST)); }catch(e){}
-      render();
-    }
+    if(!(j && j.ok && j.state)) return;
+    var js = JSON.stringify(j.state);
+    var before = ST.day;
+    ST = j.state; stKnown = true;
+    if(!ls("ws4.lang")) lang = ST.lang || "km";
+    try{ ls("ws4.state", js); }catch(e){}
+    /* 変化がなければ描き直さない。10秒ごとの再描画が入力とタイマーを乱していた */
+    if(js === lastSt) return;
+    lastSt = js;
+    if(before !== ST.day){ sesIx = 0; qIx = 0; }
+    /* 入力中は描き直さず、離れてから反映する */
+    if(typing()){ pendingRender = true; return; }
+    render();
   });
 }
 function pullNotes(){
@@ -440,6 +466,7 @@ function render(){
   var a = el("app");
   if(!me.subject || !me.group){ a.innerHTML = vStart(); bindStart(); return; }
   var body = "";
+  if(view==="home")  body = vHome();
   if(view==="q")     body = vQ();
   if(view==="board") body = vBoard();
   if(view==="form")  body = vForm();
@@ -458,7 +485,7 @@ function vStart(){
       '<b class="km" style="color:var('+(on?x.t:'--body')+')">'+x.km+'</b><i>'+x.en+'</i></button>';
   }).join("");
   var g = GROUPS.map(function(x){
-    return '<button class="'+(me.group===x?"on":"")+'" data-g="'+x+'">'+x+'</button>';
+    return '<button class="'+(me.group===x?"on":"")+'" data-g="'+x+'">'+gName(x)+'</button>';
   }).join("");
   return '<div class="board" style="padding-bottom:19px">'+
     '<span class="bMark">WS-4 · S-TEC OUTPUT 4</span>'+
@@ -516,17 +543,27 @@ function roleChip(role){
 }
 
 /* ── 問い ── */
+function availIdx(){
+  var list = daySes(), out = [];
+  for(var i=0;i<list.length;i++){ if(qsOf(list[i].id).filter(visible).length) out.push(i); }
+  return out;
+}
 function vQ(){
   var list = daySes();
   if(sesIx >= list.length) sesIx = 0;
+  var av = availIdx();
+  if(av.length && av.indexOf(sesIx) < 0){ sesIx = av[0]; qIx = 0; }
   var ses = list[sesIx];
   var qs  = qsOf(ses.id).filter(visible);
 
   if(!qs.length){
     return head(ses, null, 0, 0) + tray() +
-      '<div class="main"><div class="readonly"><p class="km" style="text-align:center">'+t("waiting")+'</p></div></div>'+
-      '<div class="foot">'+navBtns(sesIx===0, sesIx>=list.length-1)+'</div>';
+      '<div class="main"><div class="readonly"><p class="km" style="text-align:center">'+t("waiting")+'</p></div></div>';
   }
+  var chips = av.length > 1 ? '<div class="chips">'+ av.map(function(i){
+      return '<button class="chip'+(i===sesIx?" on":"")+'" data-ses="'+i+'">'+
+        esc(list[i][lang==="km"?"km":"en"])+'</button>';
+    }).join("") +'</div>' : "";
   if(qIx >= qs.length) qIx = qs.length - 1;
   if(qIx < 0) qIx = 0;
   var q = qs[qIx];
@@ -540,7 +577,7 @@ function vQ(){
     var sc = ses.scope === "individual";
     mid = '<div style="display:flex;flex-direction:column;gap:9px">'+
       '<div class="rowb"><label class="lab km" for="ta">'+(sc?t("answerI"):t("answer"))+'</label>'+
-      '<span class="sub km" style="color:var('+sj.t+');background:var('+sj.b+')">'+sj.km+' · '+me.group+'</span></div>'+
+      '<span class="sub km" style="color:var('+sj.t+');background:var('+sj.b+')">'+sj.km+' · '+gName(me.group)+'</span></div>'+
       '<textarea id="ta" class="km" placeholder="'+t("write")+'" style="border-top-color:var('+sj.c+')">'+
       esc(draft(q.id))+'</textarea>'+
       '<div class="rowb"><span class="hint km" id="sv">'+t("saved")+'</span></div></div>';
@@ -549,14 +586,19 @@ function vQ(){
   var sent = ses.batch ? !!sentHash(ses.batch) : false;
   var foot = "";
   if(ses.batch){
-    var ids = qsOf(ses.id).filter(function(x){ return x.mode==="answer"; }).map(function(x){ return x.id; });
+    var aq   = qsOf(ses.id).filter(function(x){ return x.mode==="answer"; });
+    var ids  = aq.map(function(x){ return x.id; });
+    var done = aq.filter(function(x){ return (draft(x.id)||"").trim(); }).length;
     foot = (sent ? noteSent(ses) : "") +
-      '<button class="btn km" id="send">'+(sent?t("resend"):t("send"))+' '+ids[0]+'–'+ids[ids.length-1]+'</button>';
+      '<div class="rowb"><span class="hint km" id="cnt">'+done+' / '+aq.length+' '+t("filled")+'</span></div>'+
+      '<button class="btn km" id="send"'+(done===aq.length?"":" disabled")+'>'+
+        (sent?t("resend"):t("send"))+' '+ids[0]+'–'+ids[ids.length-1]+'</button>';
   }
+  var ai = av.indexOf(sesIx);
   return head(ses, q, qIx, qs.length) + tray() +
-    '<div class="main">'+ segs(qIx, qs.length) + mid + '</div>'+
+    '<div class="main">'+ chips + segs(qIx, qs.length) + mid + '</div>'+
     '<div class="foot">'+ foot +
-      navBtns(sesIx===0 && qIx===0, sesIx>=list.length-1 && qIx>=qs.length-1) +'</div>';
+      navBtns(ai<=0 && qIx===0, ai>=av.length-1 && qIx>=qs.length-1) +'</div>';
 }
 function noteSent(ses){
   return '<div class="note"><div><h4 class="km">'+t("sent")+'</h4>'+
@@ -639,7 +681,7 @@ function vBoard(){
     var tr = (lang==="en" && n.text_en && n.text_en !== n.text)
       ? '<div class="tr">'+esc(n.text_en)+'</div>' : "";
     return '<div class="cardn" style="border-top-color:var('+s.c+')">'+
-      '<div class="who" style="color:var('+s.t+')">'+(lang==="km"?s.km:s.en)+' · '+esc(n.group)+'</div>'+
+      '<div class="who" style="color:var('+s.t+')">'+(lang==="km"?s.km:s.en)+' · '+esc(gName(n.group))+'</div>'+
       '<p class="km">'+esc(n.text)+'</p>'+tr+'</div>';
   }).join("");
   var pin = ST.summary ? '<div class="pin"><h4>'+t("summary").toUpperCase()+'</h4><p class="km">'+
@@ -657,6 +699,50 @@ function vBoard(){
       '<div class="chips">'+tabs+'</div>'+
       '<div class="chips">'+fl+'</div>'+
       '<div class="grid">'+pin+cards+'</div>'+
+    '</div>';
+}
+
+/* ── ホーム ── */
+function vHome(){
+  var sj = subjOf(me.subject);
+  var dayRow = function(d){
+    var on = day() === String(d);
+    return '<div style="display:flex;gap:11px;align-items:flex-start;padding:11px 0'+
+      (d===1?';border-bottom:1px solid var(--line)':'')+'">'+
+      '<span style="flex:0 0 52px;font-size:11px;font-weight:700;letter-spacing:.05em;'+
+      'color:'+(on?'var(--ink)':'#A39883')+';padding-top:3px" class="km">'+t("d"+d)+'</span>'+
+      '<div style="min-width:0"><div style="font-size:14px;font-weight:600;color:'+
+        (on?'var(--body)':'var(--muted)')+'">'+esc(THEME[d])+'</div>'+
+      '<div class="km" style="font-size:13px;color:var(--muted);margin-top:2px">'+esc(THEME_KM[d])+'</div></div>'+
+      (on?'<span style="flex:0 0 auto;margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--ink);margin-top:7px"></span>':'')+
+      '</div>';
+  };
+  return '<div class="board" style="padding-bottom:20px">'+
+      '<span class="bMark">WS-4 · S-TEC OUTPUT 4</span>'+
+      '<div style="display:flex;flex-direction:column;gap:7px">'+
+        '<h1 class="bTitle" style="font-size:21px;white-space:normal;line-height:1.35">'+esc(MAIN_EN)+'</h1>'+
+        squig(150)+
+        '<p class="km" style="margin:3px 0 0;font-size:15px;line-height:1.9;color:rgba(244,241,232,.82)">'+esc(MAIN_KM)+'</p>'+
+      '</div>'+
+      '<span class="km" style="font-size:11px;color:rgba(244,241,232,.55)">៧–៨ តុលា ២០២៦ · PTEC · BTEC · KCTEC</span>'+
+    '</div>'+ tray() +
+    '<div class="main" style="gap:14px;padding-bottom:20px">'+
+
+      '<div class="box" style="border-top-color:var('+sj.c+')">'+
+        '<div class="rowb"><h3 class="km">'+t("yours")+'</h3>'+
+        '<button class="mini km" id="chg" style="border-color:var('+sj.c+');color:var('+sj.t+')">'+t("change")+'</button></div>'+
+        '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">'+
+          '<span class="km" style="font-size:19px;font-weight:700;color:var('+sj.t+')">'+(lang==="km"?sj.km:sj.en)+'</span>'+
+          '<span style="font-size:19px;font-weight:700;color:var(--body)">'+gName(me.group)+'</span>'+
+        '</div></div>'+
+
+      '<div class="box"><h3 class="km">'+t("days")+'</h3>'+
+        '<div>'+dayRow(1)+dayRow(2)+'</div></div>'+
+
+      '<div class="rowb"><span class="km" style="font-size:12px;color:var(--muted)">'+t("lang")+'</span>'+
+        '<div class="lang"><button class="km '+(lang==="km"?"on":"")+'" data-l2="km">ខ្មែរ</button>'+
+        '<button class="'+(lang==="en"?"on":"")+'" data-l2="en">English</button></div></div>'+
+
     '</div>';
 }
 
@@ -695,6 +781,7 @@ function vTabs(){
   function ic(p){ return '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8C8275" '+
     'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
   return '<div class="tabs">'+
+    '<button class="'+(view==="home"?"on":"")+'" data-v="home">'+ic('<path d="M3 10.5L12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/>')+'<span class="km">'+t("home")+'</span></button>'+
     '<button class="'+(view==="q"?"on":"")+'" data-v="q">'+ic('<path d="M4 5h16v11H8l-4 3V5z"/>')+'<span class="km">'+t("question")+'</span></button>'+
     '<button class="'+(view==="board"?"on":"")+'" data-v="board">'+ic('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9h4v4H7zM14 9h3M14 13h3"/>')+'<span class="km">'+t("board")+'</span></button>'+
     '<button class="'+(view==="form"?"on":"")+'" data-v="form">'+ic('<path d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M9 8h6M9 12h6M9 16h3"/>')+'<span class="km">'+t("form")+'</span></button>'+
@@ -803,10 +890,30 @@ function bind(){
   var ex = el("exp");
   if(ex) ex.onclick = function(){ expand = !expand; render(); };
 
+  var ch = el("chg");
+  if(ch) ch.onclick = function(){ me.subject=""; me.group=""; ls("ws4.subject",""); ls("ws4.group",""); render(); };
+  a.querySelectorAll("[data-l2]").forEach(function(b){
+    b.onclick = function(){ lang = b.getAttribute("data-l2"); ls("ws4.lang",lang);
+      document.documentElement.lang = lang; render(); };
+  });
+
+  a.querySelectorAll("[data-ses]").forEach(function(b){
+    b.onclick = function(){ sesIx = Number(b.getAttribute("data-ses"))||0; qIx = 0; expand=false;
+      render(); window.scrollTo({top:0,behavior:"smooth"}); };
+  });
+
   var ta = el("ta");
   if(ta){
     var list = daySes(), ses = list[sesIx], qs = qsOf(ses.id).filter(visible), q = qs[qIx];
-    ta.oninput = function(){ draft(q.id, ta.value); var s=el("sv"); if(s) s.textContent=t("saved"); };
+    var aq = qsOf(ses.id).filter(function(x){ return x.mode==="answer"; });
+    ta.oninput = function(){
+      draft(q.id, ta.value);
+      var s = el("sv"); if(s) s.textContent = t("saved");
+      var done = aq.filter(function(x){ return (draft(x.id)||"").trim(); }).length;
+      var c = el("cnt"); if(c) c.textContent = done+" / "+aq.length+" "+t("filled");
+      var sb = el("send"); if(sb) sb.disabled = (done !== aq.length);
+    };
+    ta.onblur = function(){ if(pendingRender){ pendingRender = false; render(); } };
   }
 
   var pv = el("pv"), nx = el("nx");
@@ -827,12 +934,14 @@ function bind(){
 }
 
 function step(d){
-  var list = daySes(), ses = list[sesIx], qs = qsOf(ses.id).filter(visible);
+  var list = daySes(), av = availIdx();
+  var ai = av.indexOf(sesIx); if(ai < 0) ai = 0;
+  var qs = qsOf(list[sesIx].id).filter(visible);
   var ni = qIx + d;
   if(ni < 0){
-    if(sesIx > 0){ sesIx--; var pq = qsOf(list[sesIx].id).filter(visible); qIx = Math.max(0,pq.length-1); }
+    if(ai > 0){ sesIx = av[ai-1]; var pq = qsOf(list[sesIx].id).filter(visible); qIx = Math.max(0,pq.length-1); }
   }else if(ni >= qs.length){
-    if(sesIx < list.length-1){ sesIx++; qIx = 0; }
+    if(ai < av.length-1){ sesIx = av[ai+1]; qIx = 0; }
   }else{ qIx = ni; }
   expand = false;
   render();
@@ -845,7 +954,8 @@ function doSend(){
   if(!ses.batch) return;
   var qs = qsOf(ses.id).filter(function(q){ return q.mode==="answer"; });
   var ans = qs.map(function(q){ return {qid:q.id, text:(draft(q.id)||"").trim()}; });
-  if(!ans.some(function(a){ return a.text; })){ toast(t("empty"), true); return; }
+  var miss = ans.filter(function(a){ return !a.text; }).map(function(a){ return a.qid; });
+  if(miss.length){ toast(t("needAll")+" "+miss.join(", "), true); return; }
 
   var h = hashOf(ans);
   if(sentHash(ses.batch) === h){ toast(t("dup")); return; }
@@ -951,7 +1061,7 @@ function toast(msg, bad){
   render();
   pullState();
   pullNotes();
-  setInterval(pullState, 10000);
+  setInterval(pullState, 6000);
   setInterval(function(){ if(view==="board"||view==="admin") pullNotes(); }, 12000);
   window.addEventListener("hashchange", function(){
     if(location.hash === "#admin"){ view="admin"; render(); }
