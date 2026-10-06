@@ -243,8 +243,8 @@ textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
    ここだけ書き換える。参加者の端末に設定画面は出さない。 */
 var CFG = {
   gas:   "https://script.google.com/macros/s/AKfycbxhi3YTHNTTuBYmplztXFZP7rr-QSy8fawNdgyt4-5mUNclwP1jPRmh9XqmfTztLl7EdA/exec",
-  form1: "",      /* ← Day 1 の Google フォーム URL */
-  form2: "",      /* ← Day 2 の Google フォーム URL */
+  form1: "https://forms.gle/Wd1FJWnanJVgVAsc7",
+  form2: "https://forms.gle/RXWySou5x6FrisU57",
   pass:  "stec4", /* 運営ページの合言葉 */
   sheet: ""       /* 運営だけが開くシートの URL（任意） */
 };
@@ -826,7 +826,7 @@ function vHome(){
 function vForm(){
   var d = day();
   var url = d==="1" ? CFG.form1 : CFG.form2;
-  var qn  = d==="1" ? 5 : 7;
+
   return '<div class="board">'+
       '<span class="bDay km">'+(lang==="km"?("ថ្ងៃទី "+(d==="1"?"១":"២")):("DAY "+d))+'</span>'+
       '<div style="display:flex;flex-direction:column;gap:5px">'+
@@ -840,9 +840,9 @@ function vForm(){
           ? "នេះជាការឆ្លុះបញ្ចាំងផ្ទាល់ខ្លួន មិនមែនជាក្រុមទេ។ សូមឆ្លើយម្នាក់ៗ។"
           : "This is an individual reflection, not a group one. Please answer on your own.")+'</p>'+
       '<div class="readonly"><div style="display:flex;align-items:center;gap:8px">'+
-        '<span style="font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--ink)">'+qn+' QUESTIONS</span>'+
-        '<span style="width:4px;height:4px;border-radius:50%;background:#CFC4B0"></span>'+
-        '<span style="font-size:12px;color:var(--muted)">about 5 minutes</span></div></div>'+
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="2.3" '+
+        'stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M9 2h6"/></svg>'+
+        '<span style="font-size:13px;font-weight:600;color:var(--ink)">about 3 minutes</span></div></div>'+
     '</div>'+
     '<div class="foot">'+
       (url
