@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="km">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WS-4 · Redevelop through Practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+Khmer:wght@400;500;700&display=swap">
+<style>
+:root{
+  --ink:#22332B; --chalk:#F4F1E8; --paper:#FBF7F0; --card:#FFFFFF;
+  --line:#E8DFCF; --line2:#DDD1BC; --muted:#8C8275; --body:#2E2A24; --dim:#4F4840;
+  --wood:#6B5435; --gold:#F0D98C; --green:#2A4A30; --greenbg:#EEF3EC; --greenln:#C9D9C2;
+  --math:#1E3A6E; --sci:#C4362F; --soc:#9C7B3F; --edu:#E19918;
+  --math-t:#1E3A6E; --sci-t:#C4362F; --soc-t:#7A6130; --edu-t:#8A6F28;
+  --math-b:#E7ECF4; --sci-b:#F7E8E7; --soc-b:#F3EDE2; --edu-b:#FDF3DC;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper); color:var(--body);
+  font-family:'Archivo',system-ui,-apple-system,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.km{font-family:'Noto Sans Khmer','Khmer OS','Khmer Sangam MN','Noto Serif Khmer','Archivo',sans-serif;line-height:1.9}
+button,input,textarea,select{font:inherit;color:inherit}
+button{cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hide{display:none !important}
+
+/* 黒板 */
+.board{
+  background:var(--ink);
+  background-image:radial-gradient(rgba(244,241,232,.045) 1px,transparent 1px);
+  background-size:7px 7px;
+  padding:14px 20px 16px;
+  display:flex;flex-direction:column;gap:12px;
+  padding-top:max(14px,env(safe-area-inset-top));
+}
+.tray{position:relative;height:10px;background:var(--wood);box-shadow:inset 0 2px 3px rgba(0,0,0,.28)}
+.tray i{position:absolute;top:3px;height:4px;border-radius:2px;display:block}
+.tray i:nth-child(1){left:22px;width:25px;background:var(--chalk);opacity:.9}
+.tray i:nth-child(2){left:55px;width:14px;background:var(--gold);opacity:.8}
+.bTop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bMark{font-size:11px;font-weight:700;letter-spacing:.16em;color:rgba(244,241,232,.66)}
+.bDay{font-size:10px;font-weight:500;letter-spacing:.05em;color:rgba(244,241,232,.55)}
+.bTitle{margin:0;font-size:17px;font-weight:600;letter-spacing:-.005em;color:var(--chalk);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bRule{height:1px;background:rgba(244,241,232,.15)}
+.squiggle{display:block}
+.timer{flex:0 0 auto;display:flex;align-items:center;gap:7px;border:1.5px solid var(--gold);
+  border-radius:8px;padding:6px 12px}
+.timer span{font-size:18px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.timer.off{border-color:rgba(244,241,232,.3)}
+.timer.off span{color:rgba(244,241,232,.5)}
+.timer.end{border-color:#E9948E}
+.timer.end span{color:#E9948E}
+.qNum{font-size:25px;font-weight:700;color:rgba(244,241,232,.38);letter-spacing:-.01em}
+.role{display:inline-flex;align-items:center;gap:7px;border-radius:7px;padding:6px 12px 6px 10px;
+  border:1.5px solid rgba(244,241,232,.78)}
+.role b{font-size:13px;font-weight:700;color:var(--chalk)}
+.role.fill{background:var(--chalk);border-color:var(--chalk)}
+.role.fill b{color:var(--ink)}
+.qkm{margin:0;font-size:20px;font-weight:500;line-height:1.85;color:var(--chalk)}
+.qen{margin:0;font-size:13px;line-height:1.55;color:rgba(244,241,232,.68)}
+.clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.clamp1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.more{align-self:flex-start;min-height:44px;padding:0 2px;border:0;background:none;
+  display:flex;align-items:center;gap:6px}
+.more b{font-size:13px;font-weight:700;color:var(--gold);text-decoration:underline}
+
+/* 本文 */
+.main{flex:1 1 auto;padding:15px 20px 0;display:flex;flex-direction:column;gap:13px}
+.foot{padding:10px 20px 22px;padding-bottom:max(22px,env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;gap:10px}
+.rowb{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lab{font-size:14px;font-weight:700;color:var(--body)}
+.sub{font-size:11px;font-weight:700;border-radius:5px;padding:4px 9px}
+.hint{font-size:11px;color:#A39883}
+.link{min-height:44px;padding:0 2px;border:0;background:none;font-size:13px;font-weight:500;
+  color:var(--ink);text-decoration:underline}
+textarea{width:100%;height:170px;border:1px solid var(--line2);border-top:3px solid var(--ink);
+  border-radius:10px;background:var(--card);padding:14px 15px;font-size:17px;line-height:1.95;
+  color:var(--body);resize:none;-webkit-appearance:none}
+textarea:focus{outline:2px solid var(--ink);outline-offset:1px}
+.seg{flex:1 1 auto;display:flex;gap:3px}
+.seg i{flex:1 1 auto;height:4px;border-radius:2px;background:#E3D9C6;display:block}
+.seg i.on{background:var(--ink)}
+.seg i.now{background:var(--math)}
+.segN{font-size:12px;font-weight:600;color:var(--muted)}
+.btn{width:100%;min-height:56px;border:0;border-radius:10px;background:var(--ink);
+  color:var(--chalk);font-size:16px;font-weight:700}
+.btn[disabled]{opacity:.5}
+.btn2{flex:1 1 0;min-height:48px;border:1.5px solid var(--line2);border-radius:10px;
+  background:none;font-size:15px;font-weight:500;color:#6B6354}
+.btn2.k{border-color:var(--ink);color:var(--ink);font-weight:700}
+.btn2[disabled]{opacity:.4}
+.nav{display:flex;gap:9px}
+.note{background:var(--greenbg);border:1px solid var(--greenln);border-left:5px solid var(--ink);
+  border-radius:10px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.note h4{margin:0;font-size:14px;font-weight:700;color:var(--green)}
+.note p{margin:2px 0 0;font-size:11px;color:#5A7A5F}
+.mini{flex:0 0 auto;min-height:44px;padding:0 13px;border:1.5px solid #3E6B46;border-radius:8px;
+  background:none;font-size:13px;font-weight:500;color:var(--green)}
+.warn{background:#FBECEA;border-color:#EDC9C5;border-left-color:var(--sci)}
+.warn h4{color:#8E2A24}.warn p{color:#A0564F}
+
+/* 読むだけ */
+.readonly{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:15px 16px;display:flex;flex-direction:column;gap:9px}
+.readonly .tag{font-size:10px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.readonly p{margin:0;font-size:15px;line-height:1.9;color:var(--dim)}
+
+/* ボード */
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{min-height:44px;padding:0 14px;border:1.5px solid var(--line2);border-radius:8px;
+  background:none;font-size:13px;font-weight:500;color:#6B6354}
+.chip.on{background:var(--ink);border-color:var(--ink);color:var(--chalk)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-content:start}
+@media (max-width:359px){.grid{grid-template-columns:1fr}}
+.cardn{background:var(--card);border:1px solid var(--line);border-top:5px solid var(--line2);
+  border-radius:9px;padding:13px 13px 15px;display:flex;flex-direction:column;gap:8px}
+.cardn .who{font-size:10px;font-weight:700;letter-spacing:.06em}
+.cardn p{margin:0;font-size:14px;line-height:1.85;color:var(--body);word-break:break-word}
+.cardn .tr{font-size:12px;line-height:1.6;color:var(--muted);border-top:1px dashed var(--line);padding-top:7px}
+.pin{grid-column:1/-1;background:#FDF8E8;border:1px solid #EBD9A8;border-top:5px solid var(--edu);
+  border-radius:9px;padding:14px 15px}
+.pin h4{margin:0 0 7px;font-size:11px;font-weight:700;letter-spacing:.07em;color:var(--edu-t)}
+.pin p{margin:0;font-size:14px;line-height:1.9;white-space:pre-wrap}
+.empty{grid-column:1/-1;text-align:center;padding:34px 10px;color:var(--muted);font-size:14px}
+
+/* 下部タブ */
+.tabs{position:sticky;bottom:0;display:flex;background:var(--card);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom)}
+.tabs button{flex:1 1 0;min-height:58px;border:0;background:none;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;color:var(--muted)}
+.tabs button.on{color:var(--ink)}
+.tabs button.on svg{stroke:var(--ink)}
+
+/* 起動 */
+.pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pick button{min-height:62px;padding:10px 11px;border:1px solid var(--line);border-radius:10px;
+  background:var(--card);display:flex;flex-direction:column;gap:2px;text-align:left}
+.pick button b{font-size:14px;font-weight:700}
+.pick button i{font-style:normal;font-size:11px;color:var(--muted)}
+.gpick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.gpick button{min-height:48px;border:1px solid var(--line);border-radius:9px;background:var(--card);
+  font-size:17px;font-weight:600}
+.gpick button.on{background:var(--ink);border-color:var(--ink);color:var(--chalk);font-weight:700}
+.lang{display:flex;gap:6px}
+.lang button{min-height:44px;padding:0 16px;border:1.5px solid var(--line2);border-radius:8px;
+  background:none;font-size:14px;font-weight:500;color:#6B6354}
+.lang button.on{background:var(--ink);border-color:var(--ink);color:var(--chalk);font-weight:700}
+
+/* 運営 */
+.ad{display:flex;flex-direction:column;gap:12px;padding:15px 20px 24px}
+.box{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--ink);
+  border-radius:12px;padding:14px 15px;display:flex;flex-direction:column;gap:11px}
+.box h3{margin:0;font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--ink)}
+.big{font-size:40px;font-weight:700;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.inp{min-height:44px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);
+  padding:0 10px;font-size:16px;font-weight:600;width:76px}
+.qrow{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:8px;background:#F6F2E8}
+.qrow.off{background:var(--card);border:1px dashed var(--line2)}
+.qrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--ink);flex:0 0 auto}
+.qrow label{flex:1 1 auto;display:flex;align-items:center;gap:10px;min-width:0}
+.qrow .id{flex:0 0 28px;font-size:13px;font-weight:700;color:var(--ink)}
+.qrow .md{flex:0 0 auto;font-size:10px;font-weight:700;letter-spacing:.05em;border-radius:4px;padding:3px 7px}
+.qrow .tx{font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow.off .id,.qrow.off .tx{color:#A39883}
+.stat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.stat div{border:1px solid var(--line);border-left:4px solid var(--line2);border-radius:9px;
+  padding:10px 11px;display:flex;flex-direction:column;gap:4px}
+.stat b{font-size:11px;font-weight:700;letter-spacing:.05em}
+.stat u{text-decoration:none;font-size:20px;font-weight:700;line-height:1}
+.ta2{height:92px;border-top-width:1px;font-size:15px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:76px;z-index:50;
+  background:var(--ink);color:var(--chalk);padding:13px 20px;border-radius:10px;
+  font-size:14px;font-weight:600;box-shadow:0 6px 20px rgba(46,42,36,.3);max-width:88%;text-align:center}
+.toast.err{background:#8E2A24}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* ═══════════════ 設定 ═══════════════
+   ここだけ書き換える。参加者の端末に設定画面は出さない。 */
+var CFG = {
+  gas:   "https://script.google.com/macros/s/AKfycbxhi3YTHNTTuBYmplztXFZP7rr-QSy8fawNdgyt4-5mUNclwP1jPRmh9XqmfTztLl7EdA/exec",
+  form1: "",      /* ← Day 1 の Google フォーム URL */
+  form2: "",      /* ← Day 2 の Google フォーム URL */
+  pass:  "stec4", /* 運営ページの合言葉 */
+  sheet: ""       /* 運営だけが開くシートの URL（任意） */
+};
+
+/* ═══════════════ 教科 ═══════════════ */
+var SUBJ = [
+  {id:"math", km:"គណិតវិទ្យា",            en:"Mathematics",       c:"--math", t:"--math-t", b:"--math-b"},
+  {id:"sci",  km:"វិទ្យាសាស្ត្រ",           en:"Science",           c:"--sci",  t:"--sci-t",  b:"--sci-b"},
+  {id:"soc",  km:"វិទ្យាសាស្ត្រសង្គម",      en:"Social Science",    c:"--soc",  t:"--soc-t",  b:"--soc-b"},
+  {id:"edu",  km:"អប់រំវិទ្យា",             en:"Education Studies", c:"--edu",  t:"--edu-t",  b:"--edu-b"}
+];
+var GROUPS = "ABCDEFGHIJKL".split("");
+
+/* ═══════════════ 問い ═══════════════
+   mode: read = 読むだけ / answer = 入力して送る
+   role: learner / observer / null                                    */
+var Q = [
+/* A — Day 1 午前① */
+{id:"A1",day:1,ses:"D1-A",mode:"read",role:null,
+ km:"បន្ទាប់ពីសិក្ខាសាលា តើលោកគ្រូ អ្នកគ្រូបានសាកល្បងអនុវត្ត Flipped Learning ដែរឬទេ? ប្រសិនបើបានអនុវត្តរួចហើយ តើចំណុចណាដំណើរការបានល្អ ហើយចំណុចណាជាបញ្ហាប្រឈម?",
+ en:"After the workshop, did you try Flipped Learning? If you did, what worked well and what were your challenges?"},
+{id:"A2",day:1,ses:"D1-A",mode:"read",role:"learner",
+ km:"ក្នុងនាមជាសិស្សម្នាក់ សូមសង្ខេបចំណុចសំខាន់ៗនៃវីដេអូនេះ។",
+ en:"As a learner, summarise the main points of the video."},
+{id:"A3",day:1,ses:"D1-A",mode:"read",role:"learner",
+ km:"ក្នុងនាមជាសិស្សម្នាក់ ប្រសិនបើវាជាកិច្ចការមុនម៉ោងសិក្សារបស់អ្នក តើមានចំណុចណាដែលអ្នកយល់ថាពិបាកដែរឬទេ? បើមាន ត្រង់ណា ហើយហេតុអ្វី?",
+ en:"As a learner, if this were your own Before Class task, was there anything you found difficult? If so, where, and why?"},
+{id:"A4",day:1,ses:"D1-A",mode:"read",role:"observer",
+ km:"ក្នុងនាមជាអ្នកអប់រំ សូមមើលការវាយតម្លៃនេះ។ ពេលសិស្សឆ្លើយខុស តើអ្នកអាចដឹងទេថាតើសិស្សភ័ន្តច្រឡំពីអ្វី? តើសំណួរមួយណាដែលមិនអាចប្រាប់អ្នកពីរឿងនោះ?",
+ en:"As an educator, look at this assessment. When a learner answers wrongly, can you tell what they have misunderstood? Which questions do not tell you that?"},
+{id:"A5",day:1,ses:"D1-A",mode:"read",role:"observer",
+ km:"(សូមមើលកិច្ចតែងការបង្រៀន) ក្នុងនាមជាអ្នកអប់រំ តើខ្លឹមសារមុនម៉ោងសិក្សា គ្រប់គ្រាន់ដើម្បីឲ្យសិស្សធ្វើសកម្មភាពជំហាន ៤ ដែរឬទេ?",
+ en:"(Look at the lesson plan.) As an educator, is the Before Class content enough for learners to do the STEP 4 activity?"},
+{id:"A6",day:1,ses:"D1-A",mode:"read",role:"observer",
+ km:"សូមគ្រូដែលរៀបចំធ្វើការឆ្លើយ៖ តើគំនិតភ័ន្តច្រឡំអ្វីរបស់សិស្សដែលអ្នករំពឹងទុកចេញពីសម្ភារៈសិក្សាមុនម៉ោងសិក្សានេះ ហើយតើការរៀបចំមេរៀនរបស់អ្នកដោះស្រាយចំណុចនោះដូចម្តេច?",
+ en:"To be answered by the teacher who made it: what learner misconception did you expect in this pre-class material, and how does your lesson design address it?"},
+
+/* B — Day 1 午後① 学習者として */
+{id:"B1",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
+ km:"តើបរិមាណ និងកម្រិតលំបាកនៃការសិក្សាមុនម៉ោងសិក្សាសមរម្យដែរឬទេ?",
+ en:"Was the amount and the difficulty of the pre-class learning appropriate?"},
+{id:"B2",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
+ km:"តើអ្វីដែលអ្នកបានសិក្សាមុនពេលចូលថ្នាក់រៀន បានជួយអ្នកក្នុងសកម្មភាពក្នុងថ្នាក់ដែរឬទេ?",
+ en:"Did what you learned before the class help you in the classroom activities?"},
+{id:"B3",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
+ km:"តើអ្វីដែលពិបាកក្នុងសកម្មភាពក្នុងថ្នាក់? តើជំនួយរបស់គ្រូគ្រប់គ្រាន់ដែរឬទេ?",
+ en:"What was difficult in the classroom activities? Was the teacher's support enough?"},
+{id:"B4",day:1,ses:"D1-B-L",mode:"answer",role:"learner",
+ km:"បើប្រៀបធៀបនឹងមេរៀនធម្មតា តើមានងាយស្រួលចូលរួមជាងដែរឬទេ? តើការរៀនសូត្រកាន់តែស៊ីជម្រៅដែរឬទេ?",
+ en:"Compared with a usual lesson, was it easier to take part? Did your learning go deeper?"},
+
+/* B — Day 1 午後① 観察者として */
+{id:"B5",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
+ km:"តើការសិក្សាផ្ទាល់បានប្រើប្រាស់ និងពង្រីកការសិក្សាមុនម៉ោងសិក្សា ជាជាងធ្វើម្តងទៀតដែរឬទេ? តើសិស្សបានរៀនមុនមកដែរឬទេ?",
+ en:"Did the face-to-face lesson build on and extend the pre-class learning, rather than repeat it? Had the students done the pre-class work?"},
+{id:"B6",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
+ km:"នៅក្នុងសកម្មភាពជំហានទី ៤ តើសិស្សបានដើរតួនាទីជាតួអង្គសំខាន់ដែរឬទេ? តើវាស្របគ្នាជាមួយខ្លឹមសារមុនម៉ោងសិក្សាដែរឬទេ?",
+ en:"In the STEP 4 activity, were the students the main actors? Was it consistent with the pre-class content?"},
+{id:"B7",day:1,ses:"D1-B-O",mode:"answer",role:"observer",
+ km:"នៅក្នុងបរិបទកម្ពុជា តើអ្វីធ្វើឲ្យ Flipped Learning មានការលំបាក ហើយតើអាចធ្វើអ្វីខ្លះដើម្បីដោះស្រាយ?",
+ en:"In the Cambodian context, what makes Flipped Learning difficult, and what can be done about it?"},
+
+/* C — Day 1 午後② */
+{id:"C1",day:1,ses:"D1-C",mode:"read",role:null,
+ km:"សម្រាប់ប្រធានបទនៃមេរៀនពេលព្រឹកនេះ តើខ្សែបន្ទាត់បែងចែករវាង «អ្វីដែលអាចរៀនមុនម៉ោងសិក្សា» និង «អ្វីដែលធ្វើបាននៅក្នុងថ្នាក់រៀន (ផ្ទាល់)» នៅត្រង់ណា?",
+ en:"For the topic of this morning's lesson, where is the line between what can be learned Before Class and what can only be done In Class?"},
+{id:"C2",day:1,ses:"D1-C",mode:"read",role:null,
+ km:"សម្រាប់ប្រធានបទនៃមេរៀនពេលព្រឹកនេះ តើគំនិតភ័ន្តច្រឡំបីយ៉ាងដែលសិស្សតែងតែមានច្រើនជាងគេ គឺអ្វី?",
+ en:"For the topic of this morning's lesson, what are the three misconceptions that learners most often have?"},
+{id:"C3",day:1,ses:"D1-C",mode:"read",role:null,
+ km:"សូមសរសេរសំណួរវាយតម្លៃមួយ ដែលបង្ហាញគំនិតភ័ន្តច្រឡំមួយក្នុងចំណោមនោះ។ សម្រាប់ចម្លើយខុសនីមួយៗ តើសិស្សដែលជ្រើសរើសវា មានការគិតបែបណា?",
+ en:"Write one assessment question that reveals one of those misconceptions. For each wrong option, what way of thinking does a learner who chooses it have?"},
+{id:"C4",day:1,ses:"D1-C",mode:"read",role:null,
+ km:"ប្រសិនបើសិស្សច្រើននាក់ឆ្លើយសំណួរនោះខុស តើអ្នកនឹងធ្វើអ្វីមុនពេលចាប់ផ្តើមជំហានទី ៤?",
+ en:"If many learners answer that question wrongly, what will you do before you start STEP 4?"},
+
+/* D — Day 2 午前 */
+{id:"D1",day:2,ses:"D2-D",mode:"read",role:"observer",
+ km:"នៅក្នុងមេរៀនកាលពីម្សិលមិញ តើសិស្សបានដើរតួជាតួអង្គសំខាន់ក្នុងជំហានទី៤ ដែរឬទេ? តើពេលណាដែលអ្នកមានអារម្មណ៍ថាជាសិស្សមជ្ឈមណ្ឌល ហើយអ្វីដែលគួរឲ្យកត់សម្គាល់?",
+ en:"In yesterday's lesson, were the students the main actors in STEP 4? When did it feel learner-centred, and what stood out to you?"},
+{id:"D2",day:2,ses:"D2-D",mode:"answer",role:"learner",
+ km:"សម្រាប់ប្រធានបទនៃមេរៀនកាលពីម្សិលមិញ តើសកម្មភាពជំហានទី៤ បែបណាដែលធ្វើឲ្យការរៀនសូត្រកាន់តែស៊ីជម្រៅ?",
+ en:"For the topic of yesterday's lesson, what STEP 4 activity would make learning go deeper?"},
+{id:"D3",day:2,ses:"D2-D",mode:"answer",role:"learner",
+ km:"ប្រសិនបើសិស្សអាចធ្វើសកម្មភាពនេះបាន តើពួកគេអាចធ្វើអ្វីបានថ្មី ដែលពីមុនមិនអាចធ្វើបាន? (នេះគឺជាលទ្ធផលនៃការសិក្សា)",
+ en:"If learners can do this activity, what can they now do that they could not do before? (This is the Learning Outcome.)"},
+{id:"D4",day:2,ses:"D2-D",mode:"answer",role:"learner",
+ km:"តើអ្នកនឹងពិនិត្យយ៉ាងដូចម្តេចថាសិស្សបានសម្រេចលទ្ធផលនៃការសិក្សា?",
+ en:"How will you check that learners have reached the Learning Outcome?"},
+{id:"D5",day:2,ses:"D2-D5",mode:"read",role:null,
+ km:"សូមជ្រើសរើសសម្ភារៈឧបទ្ទេសមួយដែលអ្នកបានបង្កើតនៅក្នុងសិក្ខាសាលាលើកទី១ ទី២ ឬទី៣។ ដោយផ្អែកលើការពិភាក្សាថ្ងៃនេះ សូមសម្រេចថាត្រូវកែអ្វីនៅក្នុងជំហានទី៤ ហើយកែលម្អ។",
+ en:"Choose one material you made in WS-1, 2 or 3. Using today's discussion, decide what to change in its STEP 4, and improve it."},
+
+/* E — Day 2 午後 */
+{id:"E1",day:2,ses:"D2-E",mode:"answer",role:null,
+ km:"នៅក្នុងមុខវិជ្ជារបស់អ្នក តើគ្រូគួរយកចិត្តទុកដាក់លើអ្វីខ្លះនៅមុនម៉ោងសិក្សា និង នៅក្នុងម៉ោងសិក្សា? ហេតុអ្វី?",
+ en:"In your subject, what should teachers pay attention to in Before Class and In Class, and why?"},
+{id:"E2",day:2,ses:"D2-E",mode:"answer",role:null,
+ km:"នៅក្នុងមុខវិជ្ជារបស់អ្នក តើការសិក្សារបែបណាដែលចាំបាច់នៅក្នុងជំហានទី៤ ហើយតើសកម្មភាពបែបណាខ្លះអាចសម្រេចវាបាន? សូមពិចារណាសកម្មភាពមួយចំនួន",
+ en:"In your subject, what kind of learning is needed in STEP 4, and what activities could achieve it? Think of several activities."},
+{id:"E3",day:2,ses:"D2-E3",mode:"read",role:null,
+ km:"សូមជ្រើសរើសសម្ភារៈឧបទ្ទេសមួយដែលអ្នកបានបង្កើត។ បន្ទាប់ពីពីរថ្ងៃនេះ តើអ្នកនឹងកែអ្វី ហើយហេតុអ្វី?",
+ en:"Choose one material you have made. After these two days, what will you change, and why?"}
+];
+
+/* ═══════════════ セッション ═══════════════ */
+var SES = [
+ {id:"D1-A",   day:1, km:"ព្រឹក ① · ប្តូរសម្ភារៈ",      en:"AM1 · Swap and try",        batch:null,      scope:null},
+ {id:"D1-B-L", day:1, km:"រសៀល ① · ក្នុងនាមជាសិស្ស",  en:"PM1 · As a learner",        batch:"D1-B-L", scope:"group"},
+ {id:"D1-B-O", day:1, km:"រសៀល ① · ក្នុងនាមជាអ្នកសង្កេត", en:"PM1 · As an observer",  batch:"D1-B-O", scope:"group"},
+ {id:"D1-C",   day:1, km:"រសៀល ② · មុនម៉ោងសិក្សា",    en:"PM2 · Before Class",        batch:null,      scope:null},
+ {id:"D2-D",   day:2, km:"ព្រឹក · ជំហានទី ៤",           en:"AM · STEP 4",               batch:"D2-D",   scope:"group"},
+ {id:"D2-D5",  day:2, km:"ព្រឹក · កែលម្អសម្ភារៈ",       en:"AM · Improve your material",batch:null,      scope:null},
+ {id:"D2-E",   day:2, km:"រសៀល · បរិបទកម្ពុជា",        en:"PM · Cambodian context",    batch:"D2-E",   scope:"individual"},
+ {id:"D2-E3",  day:2, km:"រសៀល · សកម្មភាពបន្ទាប់",    en:"PM · Next action",          batch:null,      scope:null}
+];
+
+var THEME = {1:"Refine Consistency", 2:"Deepen learning, Think ahead"};
+
+/* ═══════════════ 言語 ═══════════════ */
+var T = {
+  km:{
+    start:"ចាប់ផ្តើម", subject:"ជ្រើសរើសមុខវិជ្ជា", group:"ជ្រើសរើសក្រុម", lang:"ភាសា",
+    later:"អ្នកអាចផ្លាស់ប្តូរពេលណាក៏បាន", answer:"ចម្លើយរបស់ក្រុម", answerI:"ចម្លើយរបស់អ្នក",
+    write:"សរសេរនៅទីនេះ…", saved:"បានរក្សាទុក", full:"មើលសំណួរទាំងស្រុង", less:"បង្រួម",
+    prev:"មុន", next:"បន្ទាប់", send:"បញ្ជូន", sent:"បានបញ្ជូន", resend:"បញ្ជូនម្តងទៀត",
+    redo:"កែសម្រួល", board:"ក្តារ", question:"សំណួរ", form:"សំណុំបែបបទ", all:"ទាំងអស់",
+    none:"មិនទាន់មានចម្លើយ", read:"សំណួរនេះសម្រាប់ពិភាក្សា មិនបាច់សរសេរទេ",
+    openForm:"បើកសំណុំបែបបទ", back:"ត្រឡប់វិញ", summary:"សង្ខេប",
+    waiting:"សូមរង់ចាំ អ្នកសម្របសម្រួលនឹងបើកសំណួរ", okSent:"បានបញ្ជូនរួចរាល់",
+    dup:"ខ្លឹមសារមិនបានផ្លាស់ប្តូរទេ", fail:"បញ្ជូនមិនបាន សូមព្យាយាមម្តងទៀត",
+    empty:"សូមសរសេរចម្លើយជាមុនសិន", learner:"សិស្ស", observer:"អ្នកសង្កេត"
+  },
+  en:{
+    start:"Start", subject:"Choose your subject", group:"Choose your group", lang:"Language",
+    later:"You can change this later", answer:"Group answer", answerI:"Your answer",
+    write:"Write here…", saved:"Saved", full:"Show full question", less:"Show less",
+    prev:"Back", next:"Next", send:"Send", sent:"Sent", resend:"Send again",
+    redo:"Edit", board:"Board", question:"Question", form:"Form", all:"All",
+    none:"No answers yet", read:"This question is for discussion — no writing needed",
+    openForm:"Open the form", back:"Back", summary:"Summary",
+    waiting:"Waiting — the facilitator will release the questions", okSent:"Sent",
+    dup:"Nothing changed", fail:"Could not send. Please try again.",
+    empty:"Please write an answer first", learner:"Learner", observer:"Observer"
+  }
+};
+function t(k){ return (T[lang]||T.km)[k] || k; }
+
+/* ═══════════════ 状態 ═══════════════ */
+var lang = ls("ws4.lang") || "km";
+var me   = { subject: ls("ws4.subject")||"", group: ls("ws4.group")||"" };
+var client = ls("ws4.client") || (function(){
+  var v = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+  ls("ws4.client", v); return v;
+})();
+var view   = "q";
+var sesIx  = 0;
+var qIx    = 0;
+var expand = false;
+var ST = { day:"1", lang:"km", lock:1, open:"", timerEnd:0, timerRun:0, summary:"" };
+var stKnown = false;
+var notes = [];
+var boardQ = "";
+var boardFilter = "";
+var isAdmin = ls("ws4.admin") === "1";
+var busy = false;
+
+function ls(k,v){
+  try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); return v; }
+  catch(e){ return v===undefined ? null : v; }
+}
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+function el(id){ return document.getElementById(id); }
+function subjOf(id){ for(var i=0;i<SUBJ.length;i++) if(SUBJ[i].id===id) return SUBJ[i]; return SUBJ[0]; }
+function sesOf(id){ for(var i=0;i<SES.length;i++) if(SES[i].id===id) return SES[i]; return null; }
+function qsOf(sid){ return Q.filter(function(q){ return q.ses===sid; }); }
+function day(){ return String(ST.day||"1"); }
+function daySes(){ return SES.filter(function(s){ return String(s.day)===day(); }); }
+
+/* 公開判定 */
+function openSet(){ return String(ST.open||"").split(",").filter(Boolean); }
+function visible(q){
+  if(isAdmin || !stKnown) return true;
+  if(!ST.lock) return true;
+  return openSet().indexOf(q.id) >= 0;
+}
+
+/* ═══════════════ 通信 ═══════════════ */
+function post(obj, cb){
+  if(!CFG.gas){ cb && cb({ok:false,error:"no gas url"}); return; }
+  fetch(CFG.gas, {
+    method:"POST",
+    headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body: JSON.stringify(obj)
+  }).then(function(r){ return r.json(); })
+    .then(function(j){ cb && cb(j); })
+    .catch(function(){
+      /* 読めない環境では投げっぱなしで送る */
+      fetch(CFG.gas,{method:"POST",mode:"no-cors",
+        headers:{"Content-Type":"text/plain;charset=utf-8"},
+        body:JSON.stringify(obj)})
+        .then(function(){ cb && cb({ok:true,unconfirmed:true}); })
+        .catch(function(){ cb && cb({ok:false}); });
+    });
+}
+function get(params, cb){
+  if(!CFG.gas){ cb && cb(null); return; }
+  var u = CFG.gas + (CFG.gas.indexOf("?")<0?"?":"&") + params + "&_=" + Date.now();
+  fetch(u).then(function(r){ return r.json(); })
+          .then(function(j){ cb && cb(j); })
+          .catch(function(){ cb && cb(null); });
+}
+function pullState(){
+  get("action=state", function(j){
+    if(j && j.ok && j.state){
+      var before = ST.day;
+      ST = j.state; stKnown = true;
+      if(!ls("ws4.lang")) lang = ST.lang || "km";
+      if(before !== ST.day){ sesIx = 0; qIx = 0; }
+      try{ ls("ws4.state", JSON.stringify(ST)); }catch(e){}
+      render();
+    }
+  });
+}
+function pullNotes(){
+  get("action=notes&day=" + day(), function(j){
+    if(j && j.ok){ notes = j.notes || []; if(view==="board") render(); }
+  });
+}
+
+/* ═══════════════ 下書き ═══════════════ */
+function draft(qid, v){
+  var k = "ws4.d." + qid;
+  if(v===undefined) return ls(k) || "";
+  ls(k, v); return v;
+}
+function sentHash(batch){ return ls("ws4.sent." + batch) || ""; }
+function hashOf(ans){
+  var s = ans.map(function(a){ return a.qid+"\u0001"+a.text; }).join("\u0002");
+  var h = 0;
+  for(var i=0;i<s.length;i++){ h = (h*31 + s.charCodeAt(i)) | 0; }
+  return String(h);
+}
+
+/* ═══════════════ 画面 ═══════════════ */
+function render(){
+  var a = el("app");
+  if(!me.subject || !me.group){ a.innerHTML = vStart(); bindStart(); return; }
+  var body = "";
+  if(view==="q")     body = vQ();
+  if(view==="board") body = vBoard();
+  if(view==="form")  body = vForm();
+  if(view==="admin") body = vAdmin();
+  a.innerHTML = body + (view==="admin" ? "" : vTabs());
+  bind();
+  tickTimer();
+}
+
+/* ── 起動 ── */
+function vStart(){
+  var s = SUBJ.map(function(x){
+    var on = me.subject===x.id;
+    return '<button data-s="'+x.id+'" style="'+
+      (on?('border:2px solid var('+x.c+');background:var('+x.b+')'):('border-left:4px solid var('+x.c+')'))+'">'+
+      '<b class="km" style="color:var('+(on?x.t:'--body')+')">'+x.km+'</b><i>'+x.en+'</i></button>';
+  }).join("");
+  var g = GROUPS.map(function(x){
+    return '<button class="'+(me.group===x?"on":"")+'" data-g="'+x+'">'+x+'</button>';
+  }).join("");
+  return '<div class="board" style="padding-bottom:19px">'+
+    '<span class="bMark">WS-4 · S-TEC OUTPUT 4</span>'+
+    '<div style="display:flex;flex-direction:column;gap:5px">'+
+      '<h1 class="bTitle" style="font-size:21px;white-space:normal">Redevelop through Practice</h1>'+
+      squig(134)+
+      '<span class="km" style="font-size:12px;color:rgba(244,241,232,.62);margin-top:2px">៧–៨ តុលា ២០២៦ · PTEC · BTEC · KCTEC</span>'+
+    '</div></div>'+ tray() +
+    '<div class="main" style="gap:17px;padding-bottom:20px">'+
+      '<div class="rowb"><span class="km" style="font-size:12px;color:var(--muted)">'+t("lang")+'</span>'+
+        '<div class="lang"><button class="km '+(lang==="km"?"on":"")+'" data-l="km">ខ្មែរ</button>'+
+        '<button class="'+(lang==="en"?"on":"")+'" data-l="en">English</button></div></div>'+
+      '<div style="display:flex;flex-direction:column;gap:9px">'+
+        '<span class="lab km">'+t("subject")+'</span><div class="pick">'+s+'</div></div>'+
+      '<div style="display:flex;flex-direction:column;gap:9px">'+
+        '<span class="lab km">'+t("group")+'</span><div class="gpick">'+g+'</div></div>'+
+    '</div>'+
+    '<div class="foot"><button class="btn km" id="go" '+(me.subject&&me.group?"":"disabled")+'>'+t("start")+'</button>'+
+      '<span class="hint km" style="text-align:center">'+t("later")+'</span></div>';
+}
+function bindStart(){
+  var a = el("app");
+  a.querySelectorAll("[data-s]").forEach(function(b){
+    b.onclick = function(){ me.subject = b.getAttribute("data-s"); ls("ws4.subject",me.subject);
+      var g=me.group; me.group=g; a.innerHTML=vStart(); bindStart(); };
+  });
+  a.querySelectorAll("[data-g]").forEach(function(b){
+    b.onclick = function(){ me.group = b.getAttribute("data-g"); ls("ws4.group",me.group);
+      a.innerHTML=vStart(); bindStart(); };
+  });
+  a.querySelectorAll("[data-l]").forEach(function(b){
+    b.onclick = function(){ lang = b.getAttribute("data-l"); ls("ws4.lang",lang);
+      document.documentElement.lang = lang; a.innerHTML=vStart(); bindStart(); };
+  });
+  var go = el("go");
+  if(go) go.onclick = function(){ if(me.subject&&me.group){ view="q"; render(); } };
+}
+
+function tray(){ return '<div class="tray"><i></i><i></i></div>'; }
+function squig(w){
+  var h=6, p="M2 4C"+(w*0.18)+" 1.9 "+(w*0.34)+" 4.8 "+(w*0.5)+" 2.8 "+(w*0.66)+" 1 "+(w*0.84)+" 4.2 "+(w-2)+" 2.3";
+  return '<svg class="squiggle" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" fill="none" aria-hidden="true">'+
+    '<path d="'+p+'" stroke="#F0D98C" stroke-width="2.4" stroke-linecap="round" opacity=".8"/></svg>';
+}
+function roleChip(role){
+  if(!role) return "";
+  var fill = role==="learner";
+  var ic = fill
+    ? '<path d="M12 3L2 8l10 5 10-5-10-5z"/><path d="M6 10.5V15c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/>'
+    : '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.5"/>';
+  return '<span class="role '+(fill?"fill":"")+'">'+
+    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="'+(fill?"#22332B":"#F4F1E8")+
+    '" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ic+'</svg>'+
+    '<b class="km">'+t(role)+'</b></span>';
+}
+
+/* ── 問い ── */
+function vQ(){
+  var list = daySes();
+  if(sesIx >= list.length) sesIx = 0;
+  var ses = list[sesIx];
+  var qs  = qsOf(ses.id).filter(visible);
+
+  if(!qs.length){
+    return head(ses, null, 0, 0) + tray() +
+      '<div class="main"><div class="readonly"><p class="km" style="text-align:center">'+t("waiting")+'</p></div></div>'+
+      '<div class="foot">'+navBtns(sesIx===0, sesIx>=list.length-1)+'</div>';
+  }
+  if(qIx >= qs.length) qIx = qs.length - 1;
+  if(qIx < 0) qIx = 0;
+  var q = qs[qIx];
+
+  var mid;
+  if(q.mode === "read"){
+    mid = '<div class="readonly"><span class="tag">'+(lang==="km"?"ពិភាក្សា":"DISCUSS")+'</span>'+
+      '<p class="km">'+t("read")+'</p></div>';
+  }else{
+    var sj = subjOf(me.subject);
+    var sc = ses.scope === "individual";
+    mid = '<div style="display:flex;flex-direction:column;gap:9px">'+
+      '<div class="rowb"><label class="lab km" for="ta">'+(sc?t("answerI"):t("answer"))+'</label>'+
+      '<span class="sub km" style="color:var('+sj.t+');background:var('+sj.b+')">'+sj.km+' · '+me.group+'</span></div>'+
+      '<textarea id="ta" class="km" placeholder="'+t("write")+'" style="border-top-color:var('+sj.c+')">'+
+      esc(draft(q.id))+'</textarea>'+
+      '<div class="rowb"><span class="hint km" id="sv">'+t("saved")+'</span></div></div>';
+  }
+
+  var sent = ses.batch ? !!sentHash(ses.batch) : false;
+  var foot = "";
+  if(ses.batch){
+    var ids = qsOf(ses.id).filter(function(x){ return x.mode==="answer"; }).map(function(x){ return x.id; });
+    foot = (sent ? noteSent(ses) : "") +
+      '<button class="btn km" id="send">'+(sent?t("resend"):t("send"))+' '+ids[0]+'–'+ids[ids.length-1]+'</button>';
+  }
+  return head(ses, q, qIx, qs.length) + tray() +
+    '<div class="main">'+ segs(qIx, qs.length) + mid + '</div>'+
+    '<div class="foot">'+ foot +
+      navBtns(sesIx===0 && qIx===0, sesIx>=list.length-1 && qIx>=qs.length-1) +'</div>';
+}
+function noteSent(ses){
+  return '<div class="note"><div><h4 class="km">'+t("sent")+'</h4>'+
+    '<p class="km">'+ses[lang==="km"?"km":"en"]+'</p></div></div>';
+}
+function head(ses, q, i, n){
+  var tm = timerHtml();
+  var top = '<div class="bTop"><div style="min-width:0;display:flex;flex-direction:column;gap:1px">'+
+    '<span class="bDay km">'+(lang==="km"?("ថ្ងៃទី "+(day()==="1"?"១":"២")):("DAY "+day()))+' · '+
+      esc(ses[lang==="km"?"km":"en"])+'</span>'+
+    '<h1 class="bTitle">'+esc(THEME[day()]||"")+'</h1></div>'+ tm +'</div>';
+  if(!q) return '<div class="board">'+top+'</div>';
+  var full = expand ? "" : " clamp2";
+  var full1 = expand ? "" : " clamp1";
+  return '<div class="board">'+ top +
+    '<div class="bRule"></div>'+
+    '<div class="rowb">'+ roleChip(q.role) +'<span class="qNum">'+q.id+'</span></div>'+
+    '<div style="display:flex;flex-direction:column;gap:9px">'+
+      '<p class="qkm km'+full+'">'+esc(q.km)+'</p>'+
+      '<p class="qen'+full1+'">'+esc(q.en)+'</p>'+
+      '<button class="more" id="exp"><b class="km">'+(expand?t("less"):t("full"))+'</b>'+
+      '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#F0D98C" stroke-width="2.6" '+
+      'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+
+      (expand?"M18 15l-6-6-6 6":"M6 9l6 6 6-6")+'"/></svg></button>'+
+    '</div></div>';
+}
+function segs(i,n){
+  var s = "";
+  for(var k=0;k<n;k++) s += '<i class="'+(k<i?"on":(k===i?"now":""))+'"></i>';
+  return '<div class="rowb"><div class="seg">'+s+'</div><span class="segN">'+(i+1)+' / '+n+'</span></div>';
+}
+function navBtns(first, last){
+  return '<div class="nav">'+
+    '<button class="btn2 km" id="pv"'+(first?" disabled":"")+'>← '+t("prev")+'</button>'+
+    '<button class="btn2 k km" id="nx"'+(last?" disabled":"")+'>'+t("next")+' →</button></div>';
+}
+function timerHtml(){
+  var left = ST.timerRun ? Math.max(0, Math.round((ST.timerEnd - Date.now())/1000)) : 0;
+  var cls = !ST.timerRun ? "timer off" : (left<=0 ? "timer end" : "timer");
+  var mm = Math.floor(left/60), ss = left%60;
+  var txt = ST.timerRun ? (mm + ":" + (ss<10?"0":"") + ss) : "--:--";
+  return '<div class="'+cls+'" id="tm"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" '+
+    'stroke="currentColor" stroke-width="2.3" stroke-linecap="round" aria-hidden="true" '+
+    'style="color:inherit"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M9 2h6"/></svg>'+
+    '<span>'+txt+'</span></div>';
+}
+var timerIv = null;
+function tickTimer(){
+  if(timerIv) clearInterval(timerIv);
+  timerIv = setInterval(function(){
+    var n = el("tm"); if(!n) return;
+    var left = ST.timerRun ? Math.max(0, Math.round((ST.timerEnd - Date.now())/1000)) : 0;
+    var mm = Math.floor(left/60), ss = left%60;
+    n.className = !ST.timerRun ? "timer off" : (left<=0 ? "timer end" : "timer");
+    n.querySelector("span").textContent = ST.timerRun ? (mm+":"+(ss<10?"0":"")+ss) : "--:--";
+  }, 1000);
+}
+
+/* ── ボード ── */
+function vBoard(){
+  var list = daySes(), ses = list[sesIx] || list[0];
+  var qs = qsOf(ses.id).filter(function(q){ return q.mode==="answer"; });
+  if(!qs.length) qs = qsOf(ses.id);
+  if(!boardQ || !qs.some(function(q){return q.id===boardQ;})) boardQ = qs.length?qs[0].id:"";
+
+  var tabs = qs.map(function(q){
+    return '<button class="chip '+(boardQ===q.id?"on":"")+'" data-bq="'+q.id+'">'+q.id+'</button>';
+  }).join("");
+  var fl = '<button class="chip '+(!boardFilter?"on":"")+'" data-bf="">'+t("all")+'</button>' +
+    SUBJ.map(function(s){
+      return '<button class="chip '+(boardFilter===s.id?"on":"")+'" data-bf="'+s.id+'" '+
+        'style="border-color:var('+s.c+');color:var('+s.t+')">'+(lang==="km"?s.km:s.en)+'</button>';
+    }).join("");
+
+  var rows = notes.filter(function(n){
+    return n.qid===boardQ && (!boardFilter || n.subject===boardFilter);
+  });
+  var cards = rows.map(function(n){
+    var s = subjOf(n.subject);
+    var tr = (lang==="en" && n.text_en && n.text_en !== n.text)
+      ? '<div class="tr">'+esc(n.text_en)+'</div>' : "";
+    return '<div class="cardn" style="border-top-color:var('+s.c+')">'+
+      '<div class="who" style="color:var('+s.t+')">'+(lang==="km"?s.km:s.en)+' · '+esc(n.group)+'</div>'+
+      '<p class="km">'+esc(n.text)+'</p>'+tr+'</div>';
+  }).join("");
+  var pin = ST.summary ? '<div class="pin"><h4>'+t("summary").toUpperCase()+'</h4><p class="km">'+
+    esc(ST.summary)+'</p></div>' : "";
+  if(!cards) cards = '<div class="empty km">'+t("none")+'</div>';
+
+  return '<div class="board">'+
+      '<div class="bTop"><div style="min-width:0;display:flex;flex-direction:column;gap:1px">'+
+      '<span class="bDay km">'+(lang==="km"?("ថ្ងៃទី "+(day()==="1"?"១":"២")):("DAY "+day()))+'</span>'+
+      '<h1 class="bTitle km">'+(lang==="km"?"ចម្លើយទាំងអស់":"Everyone's answers")+'</h1></div>'+
+      '<span class="qNum">'+rows.length+'</span></div>'+
+      squig(100)+
+    '</div>'+ tray() +
+    '<div class="main" style="padding-bottom:18px">'+
+      '<div class="chips">'+tabs+'</div>'+
+      '<div class="chips">'+fl+'</div>'+
+      '<div class="grid">'+pin+cards+'</div>'+
+    '</div>';
+}
+
+/* ── フォーム ── */
+function vForm(){
+  var d = day();
+  var url = d==="1" ? CFG.form1 : CFG.form2;
+  var qn  = d==="1" ? 5 : 7;
+  return '<div class="board">'+
+      '<span class="bDay km">'+(lang==="km"?("ថ្ងៃទី "+(d==="1"?"១":"២")):("DAY "+d))+'</span>'+
+      '<div style="display:flex;flex-direction:column;gap:5px">'+
+        '<h1 class="bTitle km" style="font-size:22px;white-space:normal">'+
+          (lang==="km"?"ការឆ្លុះបញ្ចាំងផ្ទាល់ខ្លួន":"Individual reflection")+'</h1>'+
+        squig(124)+
+      '</div></div>'+ tray() +
+    '<div class="main" style="gap:18px">'+
+      '<p class="km" style="margin:0;font-size:16px;line-height:1.95">'+
+        (lang==="km"
+          ? "នេះជាការឆ្លុះបញ្ចាំងផ្ទាល់ខ្លួន មិនមែនជាក្រុមទេ។ សូមឆ្លើយម្នាក់ៗ។"
+          : "This is an individual reflection, not a group one. Please answer on your own.")+'</p>'+
+      '<div class="readonly"><div style="display:flex;align-items:center;gap:8px">'+
+        '<span style="font-size:12px;font-weight:700;letter-spacing:.07em;color:var(--ink)">'+qn+' QUESTIONS</span>'+
+        '<span style="width:4px;height:4px;border-radius:50%;background:#CFC4B0"></span>'+
+        '<span style="font-size:12px;color:var(--muted)">about 5 minutes</span></div></div>'+
+    '</div>'+
+    '<div class="foot">'+
+      (url
+        ? '<a class="btn km" href="'+esc(url)+'" target="_blank" rel="noopener" '+
+          'style="display:flex;align-items:center;justify-content:center;text-decoration:none">'+t("openForm")+'</a>'
+        : '<button class="btn km" disabled>'+t("openForm")+'</button>')+
+    '</div>';
+}
+
+/* ── タブ ── */
+function vTabs(){
+  function ic(p){ return '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#8C8275" '+
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'; }
+  return '<div class="tabs">'+
+    '<button class="'+(view==="q"?"on":"")+'" data-v="q">'+ic('<path d="M4 5h16v11H8l-4 3V5z"/>')+'<span class="km">'+t("question")+'</span></button>'+
+    '<button class="'+(view==="board"?"on":"")+'" data-v="board">'+ic('<rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 9h4v4H7zM14 9h3M14 13h3"/>')+'<span class="km">'+t("board")+'</span></button>'+
+    '<button class="'+(view==="form"?"on":"")+'" data-v="form">'+ic('<path d="M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M9 8h6M9 12h6M9 16h3"/>')+'<span class="km">'+t("form")+'</span></button>'+
+    '</div>';
+}
+
+/* ── 運営 ── */
+function vAdmin(){
+  if(!isAdmin){
+    return '<div class="board"><span class="bMark">WS-4 · FACILITATOR</span></div>'+tray()+
+      '<div class="main" style="gap:14px"><label class="lab" for="pw">Passcode</label>'+
+      '<input id="pw" type="password" class="inp" style="width:100%" autocomplete="off">'+
+      '<button class="btn" id="pwgo">Enter</button>'+
+      '<button class="btn2" id="exit" style="width:100%">Back</button></div>';
+  }
+  var list = daySes();
+  var ses = list[sesIx] || list[0];
+  var qs = qsOf(ses.id);
+  var open = openSet();
+
+  var opt = list.map(function(s,i){
+    return '<option value="'+i+'" '+(i===sesIx?"selected":"")+'>'+esc(s.en)+'</option>';
+  }).join("");
+
+  var rows = qs.map(function(q){
+    var on = open.indexOf(q.id)>=0;
+    var md = q.mode==="answer"
+      ? '<span class="md" style="color:#2A4A30;background:#DFE9DD">ANSWER</span>'
+      : '<span class="md" style="color:var(--muted);background:#F0E9DC">READ</span>';
+    var cnt = notes.filter(function(n){ return n.qid===q.id; }).length;
+    return '<div class="qrow '+(on?"":"off")+'">'+
+      '<input type="checkbox" id="k_'+q.id+'" data-q="'+q.id+'" '+(on?"checked":"")+'>'+
+      '<label for="k_'+q.id+'"><span class="id">'+q.id+'</span>'+md+
+      '<span class="tx">'+esc(q.en)+'</span></label>'+
+      '<span style="font-size:12px;font-weight:600;color:'+(cnt?"var(--ink)":"#C2B8A4")+'">'+
+      (q.mode==="answer"?cnt:"")+'</span></div>';
+  }).join("");
+
+  var st = SUBJ.map(function(s){
+    var gs = {};
+    notes.forEach(function(n){ if(n.subject===s.id && n.batch===(ses.batch||"")) gs[n.group]=1; });
+    var c = Object.keys(gs).length;
+    return '<div style="border-left-color:var('+s.c+')"><b style="color:var('+s.t+')">'+s.en.toUpperCase()+
+      '</b><u>'+c+'</u><span style="font-size:11px;color:var(--muted)">groups</span></div>';
+  }).join("");
+
+  var left = ST.timerRun ? Math.max(0,Math.round((ST.timerEnd-Date.now())/1000)) : 0;
+  var mm = Math.floor(left/60), ssx = left%60;
+
+  return '<div class="board"><div class="bTop">'+
+      '<div style="display:flex;flex-direction:column;gap:3px">'+
+      '<span class="bMark">WS-4 · FACILITATOR</span>'+
+      '<h1 class="bTitle">'+esc(THEME[day()]||"")+'</h1></div>'+
+      '<div class="lang"><button class="'+(day()==="1"?"on":"")+'" data-day="1" '+
+        'style="background:'+(day()==="1"?"#F4F1E8":"none")+';color:'+(day()==="1"?"#22332B":"#F4F1E8")+
+        ';border-color:rgba(244,241,232,.42)">Day 1</button>'+
+      '<button class="'+(day()==="2"?"on":"")+'" data-day="2" '+
+        'style="background:'+(day()==="2"?"#F4F1E8":"none")+';color:'+(day()==="2"?"#22332B":"#F4F1E8")+
+        ';border-color:rgba(244,241,232,.42)">Day 2</button></div>'+
+    '</div></div>'+ tray() +
+    '<div class="ad">'+
+
+    '<div class="box"><h3>TIMER</h3>'+
+      '<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'+
+      '<span class="big" id="atm">'+mm+":"+(ssx<10?"0":"")+ssx+'</span>'+
+      '<div style="display:flex;align-items:center;gap:7px"><label for="min">Minutes</label>'+
+      '<input id="min" class="inp" type="number" value="25" min="1" max="180"></div>'+
+      '<button class="btn2 k" id="tstart" style="flex:0 0 auto;padding:0 16px">Start</button>'+
+      '<button class="btn2" id="tstop" style="flex:0 0 auto;padding:0 16px">Stop</button></div></div>'+
+
+    '<div class="box"><h3>PARTICIPANT LANGUAGE</h3>'+
+      '<div class="lang"><button class="'+(ST.lang==="km"?"on":"")+'" data-sl="km">ខ្មែរ</button>'+
+      '<button class="'+(ST.lang==="en"?"on":"")+'" data-sl="en">English</button></div></div>'+
+
+    '<div class="box"><div class="rowb"><h3>STAGED RELEASE</h3>'+
+      '<label style="display:flex;align-items:center;gap:8px;min-height:44px">'+
+      '<input type="checkbox" id="lock" '+(ST.lock?"checked":"")+' style="width:19px;height:19px;accent-color:#22332B">'+
+      '<span style="font-size:13px">On</span></label></div>'+
+      '<select id="sessel" class="inp" style="width:100%">'+opt+'</select>'+
+      '<div style="display:flex;flex-direction:column;gap:7px">'+rows+'</div>'+
+      '<div style="display:flex;gap:9px;flex-wrap:wrap">'+
+      '<button class="btn2 k" id="relall" style="padding:0 14px">Release all</button>'+
+      '<button class="btn2" id="hideall" style="padding:0 14px">Hide all</button></div></div>'+
+
+    '<div class="box"><h3>SUMMARY ON BOARD</h3>'+
+      '<textarea id="sum" class="km ta2" placeholder="3 points from the discussion…">'+esc(ST.summary||"")+'</textarea>'+
+      '<button class="btn2 k" id="sumgo" style="padding:0 14px">Show on board</button></div>'+
+
+    '<div class="box"><div class="rowb"><h3>SUBMISSIONS</h3>'+
+      (CFG.sheet?'<a href="'+esc(CFG.sheet)+'" target="_blank" rel="noopener" style="font-size:13px">Open sheet</a>':"")+
+      '</div><div class="stat">'+st+'</div></div>'+
+
+    '<button class="btn2" id="exit" style="width:100%">Back to participant view</button>'+
+    '</div>';
+}
+
+/* ═══════════════ 操作 ═══════════════ */
+function bind(){
+  var a = el("app");
+
+  a.querySelectorAll("[data-v]").forEach(function(b){
+    b.onclick = function(){ view = b.getAttribute("data-v"); expand=false;
+      if(view==="board") pullNotes(); render(); };
+  });
+
+  var ex = el("exp");
+  if(ex) ex.onclick = function(){ expand = !expand; render(); };
+
+  var ta = el("ta");
+  if(ta){
+    var list = daySes(), ses = list[sesIx], qs = qsOf(ses.id).filter(visible), q = qs[qIx];
+    ta.oninput = function(){ draft(q.id, ta.value); var s=el("sv"); if(s) s.textContent=t("saved"); };
+  }
+
+  var pv = el("pv"), nx = el("nx");
+  if(pv) pv.onclick = function(){ step(-1); };
+  if(nx) nx.onclick = function(){ step(1); };
+
+  var sd = el("send");
+  if(sd) sd.onclick = doSend;
+
+  a.querySelectorAll("[data-bq]").forEach(function(b){
+    b.onclick = function(){ boardQ = b.getAttribute("data-bq"); render(); };
+  });
+  a.querySelectorAll("[data-bf]").forEach(function(b){
+    b.onclick = function(){ boardFilter = b.getAttribute("data-bf"); render(); };
+  });
+
+  bindAdmin();
+}
+
+function step(d){
+  var list = daySes(), ses = list[sesIx], qs = qsOf(ses.id).filter(visible);
+  var ni = qIx + d;
+  if(ni < 0){
+    if(sesIx > 0){ sesIx--; var pq = qsOf(list[sesIx].id).filter(visible); qIx = Math.max(0,pq.length-1); }
+  }else if(ni >= qs.length){
+    if(sesIx < list.length-1){ sesIx++; qIx = 0; }
+  }else{ qIx = ni; }
+  expand = false;
+  render();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function doSend(){
+  if(busy) return;
+  var list = daySes(), ses = list[sesIx];
+  if(!ses.batch) return;
+  var qs = qsOf(ses.id).filter(function(q){ return q.mode==="answer"; });
+  var ans = qs.map(function(q){ return {qid:q.id, text:(draft(q.id)||"").trim()}; });
+  if(!ans.some(function(a){ return a.text; })){ toast(t("empty"), true); return; }
+
+  var h = hashOf(ans);
+  if(sentHash(ses.batch) === h){ toast(t("dup")); return; }
+
+  busy = true;
+  var b = el("send"); if(b){ b.disabled = true; b.textContent = "…"; }
+
+  post({
+    type:"submit", day:day(), batch:ses.batch, subject:me.subject, group:me.group,
+    scope:ses.scope||"group", lang:lang, client:client, answers:ans
+  }, function(j){
+    busy = false;
+    if(j && j.ok){
+      ls("ws4.sent."+ses.batch, h);
+      toast(j.duplicate ? t("dup") : t("okSent"));
+      pullNotes();
+    }else{
+      toast(t("fail"), true);
+    }
+    render();
+  });
+}
+
+function bindAdmin(){
+  var pg = el("pwgo");
+  if(pg) pg.onclick = function(){
+    var v = el("pw").value;
+    if(v === CFG.pass){ isAdmin = true; ls("ws4.admin","1"); render(); }
+    else toast("No", true);
+  };
+  var ex = el("exit");
+  if(ex) ex.onclick = function(){ view="q"; render(); };
+  if(!isAdmin) return;
+
+  var a = el("app");
+  a.querySelectorAll("[data-day]").forEach(function(b){
+    b.onclick = function(){ push({day:b.getAttribute("data-day")}); };
+  });
+  a.querySelectorAll("[data-sl]").forEach(function(b){
+    b.onclick = function(){ push({lang:b.getAttribute("data-sl")}); };
+  });
+  var lk = el("lock");
+  if(lk) lk.onchange = function(){ push({lock: lk.checked?1:0}); };
+  var sel = el("sessel");
+  if(sel) sel.onchange = function(){ sesIx = Number(sel.value)||0; render(); };
+
+  a.querySelectorAll("[data-q]").forEach(function(c){
+    c.onchange = function(){
+      var id = c.getAttribute("data-q"), s = openSet(), i = s.indexOf(id);
+      if(c.checked){ if(i<0) s.push(id); } else if(i>=0){ s.splice(i,1); }
+      push({open: s.join(",")});
+    };
+  });
+  var ra = el("relall");
+  if(ra) ra.onclick = function(){
+    var list = daySes(), ses = list[sesIx];
+    var s = openSet();
+    qsOf(ses.id).forEach(function(q){ if(s.indexOf(q.id)<0) s.push(q.id); });
+    push({open: s.join(",")});
+  };
+  var ha = el("hideall");
+  if(ha) ha.onclick = function(){
+    var list = daySes(), ses = list[sesIx];
+    var ids = qsOf(ses.id).map(function(q){ return q.id; });
+    push({open: openSet().filter(function(x){ return ids.indexOf(x)<0; }).join(",")});
+  };
+  var ts = el("tstart");
+  if(ts) ts.onclick = function(){
+    var m = Number(el("min").value)||25;
+    push({timerEnd: Date.now()+m*60000, timerRun:1});
+  };
+  var tp = el("tstop");
+  if(tp) tp.onclick = function(){ push({timerRun:0}); };
+  var sg = el("sumgo");
+  if(sg) sg.onclick = function(){
+    var v = el("sum").value;
+    post({type:"summary", text:v}, function(){ ST.summary=v; toast("OK"); });
+  };
+}
+function push(patch){
+  if(patch.day !== undefined && String(patch.day) !== day()){ sesIx = 0; qIx = 0; }
+  for(var k in patch) ST[k] = patch[k];
+  render();
+  post({type:"state", state:ST}, function(){});
+}
+
+var toastT = null;
+function toast(msg, bad){
+  var d = document.createElement("div");
+  d.className = "toast" + (bad?" err":"");
+  d.className += " km";
+  d.textContent = msg;
+  document.body.appendChild(d);
+  if(toastT) clearTimeout(toastT);
+  toastT = setTimeout(function(){ d.remove(); }, 2600);
+}
+
+/* ═══════════════ 起動 ═══════════════ */
+(function(){
+  document.documentElement.lang = lang;
+  try{ var c = ls("ws4.state"); if(c){ ST = JSON.parse(c); } }catch(e){}
+  if(location.hash === "#admin"){ view = "admin"; }
+  render();
+  pullState();
+  pullNotes();
+  setInterval(pullState, 10000);
+  setInterval(function(){ if(view==="board"||view==="admin") pullNotes(); }, 12000);
+  window.addEventListener("hashchange", function(){
+    if(location.hash === "#admin"){ view="admin"; render(); }
+  });
+})();
+</script>
+</body>
+</html>
