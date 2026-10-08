@@ -327,6 +327,12 @@ var Q = [
  en:"If many learners answer that question wrongly, what will you do before you start STEP 4?"},
 
 /* D — Day 2 午前 */
+/* D0：Day 1 からの人は振り返り＋今日の目標、Day 2 からの人は目標だけ。
+   設問は1つにしてある。2つに分けると「全問に回答がないと SEND できない」
+   判定に引っかかり、片方しか該当しない人が送信できなくなるため。 */
+{id:"D0",day:2,ses:"D2-D0",mode:"answer",role:null,
+ km:"ចំពោះអ្នកដែលបានចូលរួមថ្ងៃទី១៖ សូមសរសេរមួយប្រយោគអំពីអ្វីដែលអ្នកយកបានពីថ្ងៃម្សិលមិញ បន្ថែមលើគោលដៅរបស់អ្នកសម្រាប់ថ្ងៃនេះ។ ចំពោះអ្នកដែលចាប់ផ្ដើមថ្ងៃនេះ៖ សូមសរសេរគោលដៅរបស់អ្នកសម្រាប់ថ្ងៃនេះ។",
+ en:"If you joined Day 1: write one sentence on what you took from yesterday, plus your goal for today. If today is your first day: write your goal for today."},
 {id:"D1",day:2,ses:"D2-D",mode:"read",role:"observer",
  km:"នៅក្នុងមេរៀនកាលពីម្សិលមិញ តើសិស្សបានដើរតួជាតួអង្គសំខាន់ក្នុងជំហានទី៤ ដែរឬទេ? តើពេលណាដែលអ្នកមានអារម្មណ៍ថាជាសិស្សមជ្ឈមណ្ឌល ហើយអ្វីដែលគួរឲ្យកត់សម្គាល់?",
  en:"In yesterday's lesson, were the students the main actors in STEP 4? When did it feel learner-centred, and what stood out to you?"},
@@ -361,6 +367,7 @@ var SES = [
  {id:"D1-B-L", day:1, km:"រសៀល ① · ក្នុងនាមជាសិស្ស",  en:"PM1 · As a learner",        batch:"D1-B-L", scope:"group"},
  {id:"D1-B-O", day:1, km:"រសៀល ① · ក្នុងនាមជាអ្នកសង្កេត", en:"PM1 · As an observer",  batch:"D1-B-O", scope:"group"},
  {id:"D1-C",   day:1, km:"រសៀល ② · មុនម៉ោងសិក្សា",    en:"PM2 · Before Class",        batch:null,      scope:null},
+ {id:"D2-D0",  day:2, km:"ព្រឹក · សំណួរបើក",            en:"AM · Opening Question",     batch:"D2-D0", scope:"individual"},
  {id:"D2-D",   day:2, km:"ព្រឹក · ជំហានទី ៤",           en:"AM · STEP 4",               batch:"D2-D",   scope:"group"},
  {id:"D2-D5",  day:2, km:"ព្រឹក · កែលម្អសម្ភារៈ",       en:"AM · Improve your material",batch:null,      scope:null},
  {id:"D2-E",   day:2, km:"រសៀល · បរិបទកម្ពុជា",        en:"PM · Cambodian context",    batch:"D2-E",   scope:"individual"},
