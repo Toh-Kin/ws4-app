@@ -62,8 +62,10 @@ button{cursor:pointer}
 .role b{font-size:13px;font-weight:700;color:var(--chalk)}
 .role.fill{background:var(--chalk);border-color:var(--chalk)}
 .role.fill b{color:var(--ink)}
-.qkm{margin:0;font-size:20px;font-weight:500;line-height:1.85;color:var(--chalk)}
-.qen{margin:0;font-size:13px;line-height:1.55;color:rgba(244,241,232,.68)}
+/* pre-line：問いの文に改行を入れると、そのまま改行で出る。
+   (1)(2)(3) のような枝番を1つの枠で見せるために必要。 */
+.qkm{margin:0;font-size:20px;font-weight:500;line-height:1.85;color:var(--chalk);white-space:pre-line}
+.qen{margin:0;font-size:13px;line-height:1.55;color:rgba(244,241,232,.68);white-space:pre-line}
 .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .clamp1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
 .more{align-self:flex-start;min-height:44px;padding:0 2px;border:0;background:none;
@@ -349,6 +351,21 @@ var Q = [
  km:"សូមជ្រើសរើសសម្ភារៈឧបទ្ទេសមួយដែលអ្នកបានបង្កើតនៅក្នុងសិក្ខាសាលាលើកទី១ ទី២ ឬទី៣។ ដោយផ្អែកលើការពិភាក្សាថ្ងៃនេះ សូមសម្រេចថាត្រូវកែអ្វីនៅក្នុងជំហានទី៤ ហើយកែលម្អ។",
  en:"Choose one material you made in WS-1, 2 or 3. Using today's discussion, decide what to change in its STEP 4, and improve it."},
 
+/* D10 — Day 2 午前 改善の共有（個人 → 3人組 → 全体）
+   「何を」と「どんな点に気をつけたか」は、まとめて1問にすると同じ答えになる。
+   後者は「判断の材料」を聞く形に変えて区別してある。
+   4問目は「終わっていなければ」という条件付きにすると、終えた人が
+   SEND できなくなるので、全員が答えられる「次に直したいところ」にした。 */
+{id:"D11",day:2,ses:"D2-D10",mode:"answer",role:null,
+ km:"សូមឆ្លើយទាំងបីចំណុច៖\n(១) តើអ្នកបានកែលម្អអ្វីខ្លះនៅក្នុងសម្ភារៈរបស់អ្នក? សូមសរសេរឲ្យបានលម្អិត។\n(២) ហេតុអ្វីអ្នកកែលម្អចំណុចនោះ?\n(៣) នៅពេលអ្នកសម្រេចចិត្តថាត្រូវកែចំណុចណាមួយ តើអ្នកពិនិត្យលើអ្វី ឬពឹងផ្អែកលើអ្វី?",
+ en:"Please answer all three:\n(1) What did you improve in your material? Please write it in detail.\n(2) Why did you improve that part?\n(3) When you decided what to change, what did you look at, or what did you rely on?"},
+{id:"D12",day:2,ses:"D2-D10",mode:"answer",role:null,
+ km:"នៅពេលអ្នកប្រើសម្ភារៈដែលបានកែលម្អនេះនៅក្នុងថ្នាក់រៀនជាក់ស្តែង តើអ្នកនឹងយកចិត្តទុកដាក់លើអ្វី?",
+ en:"When you use this improved material in a real class, what will you pay attention to?"},
+{id:"D13",day:2,ses:"D2-D10",mode:"answer",role:null,
+ km:"តើចំណុចបន្ទាប់ដែលអ្នកចង់កែលម្អ គឺអ្វី?",
+ en:"What is the next thing you want to improve?"},
+
 /* E — Day 2 午後 */
 {id:"E1",day:2,ses:"D2-E",mode:"answer",role:null,
  km:"នៅក្នុងមុខវិជ្ជារបស់អ្នក តើគ្រូគួរយកចិត្តទុកដាក់លើអ្វីខ្លះនៅមុនម៉ោងសិក្សា និង នៅក្នុងម៉ោងសិក្សា? ហេតុអ្វី?",
@@ -370,6 +387,7 @@ var SES = [
  {id:"D2-D0",  day:2, km:"ព្រឹក · សំណួរបើក",            en:"AM · Opening Question",     batch:"D2-D0", scope:"individual"},
  {id:"D2-D",   day:2, km:"ព្រឹក · ជំហានទី ៤",           en:"AM · STEP 4",               batch:"D2-D",   scope:"group"},
  {id:"D2-D5",  day:2, km:"ព្រឹក · កែលម្អសម្ភារៈ",       en:"AM · Improve your material",batch:null,      scope:null},
+ {id:"D2-D10", day:2, km:"ព្រឹក · ចែករំលែកការកែលម្អ",    en:"AM · Share your improvement",batch:"D2-D10",scope:"individual"},
  {id:"D2-E",   day:2, km:"រសៀល · បរិបទកម្ពុជា",        en:"PM · Cambodian context",    batch:"D2-E",   scope:"individual"},
  {id:"D2-E3",  day:2, km:"រសៀល · សកម្មភាពបន្ទាប់",    en:"PM · Next action",          batch:null,      scope:null}
 ];
