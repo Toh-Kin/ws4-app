@@ -373,7 +373,9 @@ var Q = [
 {id:"E2",day:2,ses:"D2-E",mode:"answer",role:null,
  km:"នៅក្នុងមុខវិជ្ជារបស់អ្នក តើការសិក្សារបែបណាដែលចាំបាច់នៅក្នុងជំហានទី៤ ហើយតើសកម្មភាពបែបណាខ្លះអាចសម្រេចវាបាន? សូមពិចារណាសកម្មភាពមួយចំនួន",
  en:"In your subject, what kind of learning is needed in STEP 4, and what activities could achieve it? Think of several activities."},
-{id:"E3",day:2,ses:"D2-E3",mode:"read",role:null,
+/* E3：全員が書く。Google Form と内容は重なるが、その場でボードに出して
+   互いの next action が見えることに意味があるため、read ではなく answer。 */
+{id:"E3",day:2,ses:"D2-E3",mode:"answer",role:null,
  km:"សូមជ្រើសរើសសម្ភារៈឧបទ្ទេសមួយដែលអ្នកបានបង្កើត។ បន្ទាប់ពីពីរថ្ងៃនេះ តើអ្នកនឹងកែអ្វី ហើយហេតុអ្វី?",
  en:"Choose one material you have made. After these two days, what will you change, and why?"}
 ];
@@ -389,7 +391,7 @@ var SES = [
  {id:"D2-D5",  day:2, km:"ព្រឹក · កែលម្អសម្ភារៈ",       en:"AM · Improve your material",batch:null,      scope:null},
  {id:"D2-D10", day:2, km:"ព្រឹក · ចែករំលែកការកែលម្អ",    en:"AM · Share your improvement",batch:"D2-D10",scope:"individual"},
  {id:"D2-E",   day:2, km:"រសៀល · បរិបទកម្ពុជា",        en:"PM · Cambodian context",    batch:"D2-E",   scope:"individual"},
- {id:"D2-E3",  day:2, km:"រសៀល · សកម្មភាពបន្ទាប់",    en:"PM · Next action",          batch:null,      scope:null}
+ {id:"D2-E3",  day:2, km:"រសៀល · សកម្មភាពបន្ទាប់",    en:"PM · Next action",          batch:"D2-E3", scope:"individual"}
 ];
 
 var THEME = {1:"Refine Consistency", 2:"Deepen learning, Think ahead"};
